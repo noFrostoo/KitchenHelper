@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "KitchenHelper-server"
+version = "0.1.0"
+description = ""
+authors = ["lorlen <filip.lew975@gmail.com>", "noFrostoo <nofrost1a@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.63.0"
+recipe-scrapers = "^13.1.1"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+run = "kitchenhelper_server:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
