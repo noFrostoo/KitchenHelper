@@ -8,8 +8,11 @@ authors = ["lorlen <filip.lew975@gmail.com>", "noFrostoo <nofrost1a@gmail.com>"]
 python = "^3.9"
 fastapi = "^0.63.0"
 recipe-scrapers = "^13.1.1"
+pydantic = "^1.8.1"
+SQLAlchemy = "^1.4.11"
 
 [tool.poetry.dev-dependencies]
+uvicorn = "^0.13.4"
 
 [tool.poetry.scripts]
 run = "kitchenhelper_server:main"
