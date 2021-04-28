@@ -53,15 +53,12 @@
       <item>
        <layout class="QVBoxLayout" name="SideLayout">
         <item>
-         <widget class="QListView" name="List">
+         <widget class="QListWidget" name="List">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>1</horstretch>
+            <horstretch>0</horstretch>
             <verstretch>20</verstretch>
            </sizepolicy>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
           </property>
          </widget>
         </item>
@@ -81,7 +78,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QStackedWidget" name="stackedWidget">
+       <widget class="QStackedWidget" name="mainArea">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>2</horstretch>

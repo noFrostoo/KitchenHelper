@@ -1,4 +1,5 @@
 from kitchenhelper_client.States.BaseState import BaseState
+from kitchenhelper_client.States.Notes import Notes
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
   QMessageBox
@@ -7,35 +8,27 @@ from PyQt5.QtWidgets import (
 class Idle(BaseState):
     def __init__(self, window):
         super().__init__(window)
+        self.window.showInfoScreen()
     
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_0:
-            self.window.test()
-        elif e.key() == Qt.Key_1:
-            self.window.test()
-        elif e.key() == Qt.Key_2:
-            self.window.test()
-        elif e.key() == Qt.Key_3:
+        if e.key() == Qt.Key_2:
             self.window.test()
         elif e.key() == Qt.Key_4:
             self.window.test()
         elif e.key() == Qt.Key_5:
-            self.window.test()
+            self.stateToNotes()
         elif e.key() == Qt.Key_6:
-            self.window.test()
-        elif e.key() == Qt.Key_6:
-            self.window.test()
-        elif e.key() == Qt.Key_7:
             self.window.test()
         elif e.key() == Qt.Key_8:
-            self.window.test()
-        elif e.key() == Qt.Key_9:
             self.window.test()
         elif e.key() == Qt.Key_Escape:
             self.window.close()
         else:
-            QMessageBox.about(
+            QMessageBox.critical(
             self.window,
             "Error",
             "<p>Wrong key</p>"
             )
+
+    def stateToNotes(self):
+        self.window.changeState(Notes)
