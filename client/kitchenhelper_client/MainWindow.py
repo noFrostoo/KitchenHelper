@@ -11,6 +11,7 @@ from kitchenhelper_client.RequestHandler import RequestHandler
 from kitchenhelper_client.VoiceCommandHandler import VoiceCommandHandler
 from kitchenhelper_client.VoiceCommandInterpreter import VoiceCommandInterpreter
 from kitchenhelper_client.DataStore import DataStore
+from kitchenhelper_client.Timers import Timers
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -28,6 +29,7 @@ class MainWindow(QMainWindow):
         self.requestHandler = RequestHandler(self.config)
         self.voiceCommandHandler = VoiceCommandHandler()
         self.voiceCommandInterpreter = VoiceCommandInterpreter(self.voiceCommandHandler)
+        self.timers = Timers(self)
 
     def setUpPointersToUiElements(self):
         pass
