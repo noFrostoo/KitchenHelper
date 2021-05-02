@@ -4,10 +4,10 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 import uvicorn
 
-from . import crud
 from .api import schemas
-from .database import models
+from .database import crud, models
 from .database.setup import SessionLocal, engine
+from .web.recipes import find_recipe
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -41,36 +41,35 @@ def get_all_notes(user_id: str, db: Session = Depends(get_db)):
 
 
 @app.post('/notes/{user_id}/new', response_model=schemas.Note)
-def create_note(user_id: str, note: schemas.Note, db: Session = Depends(get_db)):
+def create_note(user_id: str, note: schemas.NoteBase, db: Session = Depends(get_db)):
     return crud.create_note(db, note, user_id)
 
 
-@app.post('/notes/{user_id}/{id}', response_model=schemas.Note)
-def modify_note(user_id: str, id: int, note: schemas.Note, db: Session = Depends(get_db)):
-    db_note = crud.get_note_by_id_and_user(db, id, user_id)
-    if db_note is None:
+@app.put('/notes/{user_id}/{id}', response_model=bool)
+def replace_note(user_id: str, id: int, note: schemas.NoteBase, db: Session = Depends(get_db)):
+    if not crud.replace_note(db, note, id, user_id):
         raise HTTPException(status_code=404, detail='Note not found')
 
-    note.id = db_note.id
-    return crud.update_note(db, note, user_id)
+    return True
 
 
-@app.delete('/notes/{user_id}/{id}')
+@app.delete('/notes/{user_id}/{id}', response_model=bool)
 def delete_note(user_id: str, id: int, db: Session = Depends(get_db)):
-    db_note = crud.get_note_by_id_and_user(db, id, user_id)
-    if db_note is None:
-        raise HTTPException(status_code=404, detail='Note not found')
-    
-    crud.delete_note(db, id, user_id)
+    return crud.delete_note(db, id, user_id)
 
 
-@app.get('/recipes/{keywords}')
+@app.get('/recipes/{keywords}', response_model=schemas.Recipe)
 def get_recipe(keywords: str, db: Session = Depends(get_db)):
-    keywords = keywords.replace('+', ' ')
-    recipe = crud.get_recipes_by_all_keywords(db, keywords)
+    keywords = keywords.replace('+', ' ').lower()
+    recipe = crud.get_recipe_by_keywords(db, keywords)
+
     if recipe is None:
-        # TODO: replace with search for recipe
-        raise HTTPException(status_code=404, detail='Recipe not found')
+        recipe = find_recipe(keywords)
+
+        if recipe is None:
+            raise HTTPException(status_code=404, detail='Could not find a recipe matching given keywords')
+
+        crud.create_recipe(db, recipe)
     
     return recipe
 

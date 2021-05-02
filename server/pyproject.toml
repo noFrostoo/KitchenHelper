@@ -10,6 +10,8 @@ fastapi = "^0.63.0"
 recipe-scrapers = "^13.1.1"
 pydantic = "^1.8.1"
 SQLAlchemy = "^1.4.11"
+requests = "^2.25.1"
+lxml = "^4.6.3"
 
 [tool.poetry.dev-dependencies]
 uvicorn = "^0.13.4"

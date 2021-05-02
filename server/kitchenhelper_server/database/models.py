@@ -1,4 +1,4 @@
-from sqlalchemy import BLOB, Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, PickleType, String
 from sqlalchemy.orm import relationship
 
 from .setup import Base
@@ -27,10 +27,11 @@ class Note(Base):
 class Recipe(Base):
     __tablename__ = 'recipes'
 
-    id = Column(Integer, primary_key=True, index=True)
-    keywords = Column(String, unique=True, nullable=False, index=True)
+    keywords = Column(String, primary_key=True, index=True)
     title = Column(String, unique=True, nullable=False)
-    ingredients = Column(String)
-    instructions = Column(String)
     total_time = Column(String)
-    image = Column(BLOB)
+    yields = Column(String)
+    ingredients = Column(PickleType)
+    instructions = Column(String)
+    nutrients = Column(PickleType)
+    image = Column(String)

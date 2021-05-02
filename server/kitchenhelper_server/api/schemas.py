@@ -1,12 +1,16 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
 
-class Note(BaseModel):
+class NoteBase(BaseModel):
     id: Optional[int]
     title: str
     content: Optional[str]
+
+
+class Note(NoteBase):
+    id: int
 
     class Config:
         orm_mode = True
@@ -14,6 +18,7 @@ class Note(BaseModel):
 
 class User(BaseModel):
     id: str
+    last_note_id: int = 0
     notes: List[Note]
 
     class Config:
@@ -21,13 +26,14 @@ class User(BaseModel):
 
 
 class Recipe(BaseModel):
-    id: Optional[int]
     keywords: str
     title: str
-    ingredients: Optional[str]
-    instructions: Optional[str]
     total_time: Optional[str]
-    image: Optional[bytes]
+    yields: Optional[str]
+    ingredients: List[str]
+    instructions: Optional[str]
+    nutrients: Dict[str, str]
+    image: Optional[str]
 
     class Config:
         orm_mode = True
