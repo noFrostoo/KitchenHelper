@@ -1,6 +1,7 @@
 class DataStore:
     def __init__(self, window):
         self.window = window
+        self.nextId = 5
         self.notes = {
             1 : {
             'noteId': 1,
@@ -36,3 +37,17 @@ class DataStore:
 
     def getNote(self, id):
         return self.notes[id]
+
+    def addNote(self, title, text):
+        self.notes[self.nextId] = {
+            'noteId': self.nextId,
+            'title': title,
+            'note': text
+        }
+        self.nextId += 1
+    
+    def removeNote(self, id):
+        self.notes.pop(id, None)
+
+    def editNote(self, id, text):
+        self.notes[id]['note'] = text

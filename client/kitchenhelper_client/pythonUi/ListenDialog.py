@@ -1,19 +1,24 @@
 import sys
 from kitchenhelper_client.pythonUi.OneLabelDialog_ui import Ui_Dialog
+from kitchenhelper_client.VoiceInterpreter import VoiceInterpreter
 from PyQt5.QtCore import Qt, QTimer, pyqtSlot
 import speech_recognition as sr
 from PyQt5.QtWidgets import (
-  QDialog
+  QDialog,
+  QApplication
 )
 
 class ListenDialog(QDialog, Ui_Dialog):
-    def __init__(self, parent=None):
-        super().__init__()
+    def __init__(self, window):
+        super().__init__(window)
+        self.window = window
         self.setupUi(self)
         self.connectSignalsSlots()
         self.error = 'nothing'
         self.text = 0
-        QTimer.singleShot(160, self.listen) # value found with try and  error so has to repeated for rasbery pi
+        self.vi = VoiceInterpreter()
+        QTimer.singleShot(400, self.listen) # value found with try and  error so has to repeated for rasbery pi
+        
 
     # def showEvent(self, e):
     #     print('show')
@@ -23,15 +28,11 @@ class ListenDialog(QDialog, Ui_Dialog):
     def connectSignalsSlots(self):
         pass
     
-    @pyqtSlot()
+    # @pyqtSlot()
     def listen(self):
-        r = sr.Recognizer()
-        with sr.Microphone() as source:
-            print("Say something!")
-            audio = r.listen(source)
         try:
-            self.text = r.recognize_google(audio)
-            print("Google Speech Recognition thinks you said " + self.text)
+            self.window.statusbar.showMessage(f'Listening...')
+            self.doTheListen()
             self.accept()
         except sr.UnknownValueError:
             print("Google Speech Recognition could not understand audio")
@@ -47,3 +48,9 @@ class ListenDialog(QDialog, Ui_Dialog):
     
     def getError(self):
         return self.error
+    
+    def doTheListen(self):
+        audio = self.vi.listen()
+        self.label.setText('Analizing...')
+        QApplication.processEvents()
+        self.text = self.vi.recognize(audio)

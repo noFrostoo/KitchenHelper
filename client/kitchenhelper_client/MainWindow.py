@@ -46,11 +46,14 @@ class MainWindow(QMainWindow):
                                '<p> Available voice commands: </p>')
 
     def changeState(self, newState):
+        self.state.leave()
         self.state = newState(self)
+        self.state.enter()
 
     def keyPressEvent(self, e):
         self.state.keyPressEvent(e)
-
+        super().keyPressEvent(e)
+        
     def test(self):
         print("test")
 

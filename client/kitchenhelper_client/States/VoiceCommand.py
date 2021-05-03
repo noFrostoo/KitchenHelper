@@ -10,14 +10,18 @@ from PyQt5.QtWidgets import (
 class VoiceCommand(States.BaseState.BaseState):
     def __init__(self, window):
         self.window = window
+        # self.dialog = ListenDialog(self)
+
+    def enter(self):
+        self.window.statusbar.showMessage('Listening for commands')
         self.showListening()
-        
+
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:
             self.window.changeState(States.Idle.Idle)
     
     def showListening(self):
-        dialog = ListenDialog(self)
+        dialog = ListenDialog(self.window)
         if dialog.exec():
             self.command = dialog.getText()
             print(f"text from speech recognition: {self.command}")
@@ -39,13 +43,15 @@ class VoiceCommand(States.BaseState.BaseState):
 
     def decideAction(self):
         if self.command == VoiceCommands.Add_A_Note:
-            self.notImplemted()
+            self.window.changeState(States.Notes.Notes)
+            self.window.state.addNote()
         elif self.command == VoiceCommands.Remove_a_Note:
-            self.notImplemted()
+            self.window.changeState(States.Notes.Notes)
+            self.window.state.removeNote()
         elif self.command == VoiceCommands.Show_notes:
             self.window.changeState(States.Notes.Notes)
         elif self.command == VoiceCommands.Show_note:
-            self.notImplemted()
+            self.window.changeState(States.Notes.Notes)
         elif self.command == VoiceCommands.Show_Timers:
             self.window.changeState(States.Timers.Timers)
         elif self.command == VoiceCommands.Get_a_Recipe:
@@ -53,6 +59,8 @@ class VoiceCommand(States.BaseState.BaseState):
         elif self.command == VoiceCommands.Pause_timer:
             self.notImplemted()
         elif self.command == VoiceCommands.Stop_timer:
+            self.notImplemted()
+        elif self.command == VoiceCommands.Select_Timer:
             self.notImplemted()
         
     def notImplemted(self):
@@ -79,3 +87,4 @@ class VoiceCommand(States.BaseState.BaseState):
     # Add_a_timer = "Add a timer"
     # Pause_timer = "Pause timer"
     # Stop_timer = "Stop timer"
+    # Select_Timer = "Select timer"

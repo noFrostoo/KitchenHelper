@@ -5,14 +5,26 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
   QMessageBox
 )
+from kitchenhelper_client.pythonUi.AddNoteDialog import AddNoteDialog
 
 class Notes(States.BaseState.BaseState):
     def __init__(self, window):
         super().__init__(window)
-        self.showInfo()
-        self.showNotesInfo()
         self.id = 0
         self.idSize = 0
+        self.selectedNote = None
+        # self.addNoteDialog = AddNoteDialog(window)
+
+    def enter(self):
+        self.window.mainArea.setCurrentIndex(1)
+        self.updateNotesList()
+        if self.selectedNote is not None:
+            self.showSelectedNote()
+        else:
+            self.showInfo()
+
+    def leave(self):
+        self.window.List.clear()
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_0:
@@ -36,7 +48,8 @@ class Notes(States.BaseState.BaseState):
         elif e.key() == Qt.Key_9:
             self.addToId(9)
         elif e.key() == Qt.Key_Enter:
-            self.showNote(self.id)
+            self.selectNote(self.id)
+            self.showSelectedNote()
         elif e.key() == Qt.Key_Escape:
             self.window.changeState(States.Idle.Idle)
             self.window.List.clear()
@@ -64,11 +77,36 @@ class Notes(States.BaseState.BaseState):
     def addToId(self, number):
         self.id += self.idSize * 10 + number
         self.idSize += 1
+        self.window.statusbar.showMessage(f'Note id: {self.id}')
 
 
-    def showNote(self, id):
-        note = self.window.dataStore.getNote(id)
-        self.window.TextArea.setText(f'<h1>{note["title"]}</h1>'
-                                     f'{note["note"]}')
+    def selectNote(self, id):
+        self.selectedNote = self.window.dataStore.getNote(id)
         self.id = 0
         self.idSize = 0
+    
+    def showSelectedNote(self):
+        self.window.TextArea.setText(f'<h1>{self.selectedNote["title"]}</h1>'
+                                f'{self.selectedNote["note"]}')
+        self.window.statusbar.showMessage(f'Selected note: {self.selectedNote["title"]}')
+
+    def removeNote(self):
+        pass
+
+    def addNote(self):
+        addNoteDialog = AddNoteDialog(self.window)
+        if addNoteDialog.exec():
+            newNoteTitle = addNoteDialog.getTitle()
+            print(f"text from speech recognition: {newNoteTitle}")
+            newNoteContents = addNoteDialog.getNote()
+            self.window.dataStore.addNote(newNoteTitle, newNoteContents)
+        else:
+            QMessageBox.critical(
+            self.window,
+            "Error",
+            f"<p>{addNoteDialog.getError()}</p>"
+            )
+    
+    def updateNotesList(self):
+        self.window.List.clear()
+        self.showNotesInfo()

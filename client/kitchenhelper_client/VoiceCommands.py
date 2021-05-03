@@ -9,6 +9,7 @@
 #     "Add a timer",
 #     "Pause timer",
 #     "Stop timer",
+#     "Select timer"
 # ]
 import enum
 
@@ -22,6 +23,7 @@ class VoiceCommands(enum.Enum):
     Add_a_timer = "Add a timer"
     Pause_timer = "Pause timer"
     Stop_timer = "Stop timer"
+    Select_Timer = "Select timer"
 
     @classmethod
     def list(cls):
