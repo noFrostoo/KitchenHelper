@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (
   QMessageBox
 )
 import threading
+from kitchenhelper_client.pythonUi.AddTimerDialog import AddTimerDialog
 
 class Timers(States.BaseState.BaseState):
     def __init__(self, window):
@@ -103,6 +104,20 @@ class Timers(States.BaseState.BaseState):
         self.idSize += 1
         self.window.statusbar.showMessage(f'Timer id: {self.id}')
 
+    def addTimer(self):
+        addTimerDialog = AddTimerDialog(self.window)
+        if addTimerDialog.exec():
+            timerTitle = addTimerDialog.getTitle()
+            print(f"text from speech recognition: {timerTitle}")
+            time = addTimerDialog.getTime()
+            self.selectedId = self.window.timers.addTimer(time, timerTitle)
+            self.selectedTimer.changeTimer(self.window.timers.getTimer(self.selectedId))
+        else:
+            QMessageBox.critical(
+            self.window,
+            "Error",
+            f"<p>{addTimerDialog.getError()}</p>"
+            )    
     
 
 class SelectedTimer(threading.Thread):

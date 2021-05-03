@@ -82,6 +82,8 @@ class Notes(States.BaseState.BaseState):
 
     def selectNote(self, id):
         self.selectedNote = self.window.dataStore.getNote(id)
+        self.window.textSpeaker.say("Note Title is " + self.selectedNote['title'])
+        self.window.textSpeaker.say("Note contents are  " + self.selectedNote['note'])
         self.id = 0
         self.idSize = 0
     

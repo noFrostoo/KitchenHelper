@@ -14,6 +14,7 @@ class Timers:
         self.window.TimerText.setText(f'<h1 style="text-align:center">No Timer Active</h1>')
 
     def addTimer(self, time, title):
+        id = self.nextId
         timer = {
             'id': self.nextId,
             'title': title,
@@ -24,23 +25,28 @@ class Timers:
         timer['timer'].timeout.connect(self.timerTimeOut)
         self.timers[self.nextId] = timer
         self.nextId += 1
-        self.nextTimerToGoOff.findNextTimerToGoOff()
+        return id
 
     def removeTimer(self, id):
         self.timers[id]['timer'].stop()
+        self.timers.pop(id, None)
+        self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def stopTimer(self, id):
         self.timers[id]['timer'].stop()
         self.timers[id]['remainingTime'] = 0
+        self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def pauseTimer(self, id):
         remainingTime = self.timers[id]['timer'].remainingTime()
         self.timers[id]['timer'].stop()
         self.timers[id]['remainingTime'] = remainingTime
+        self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def startTimer(self, id):
         self.timers[id]['timer'].start(self.timers[id]['time'])
-    
+        self.nextTimerToGoOff.findNextTimerToGoOff()
+
     def getTimerInfo(self, id):
         remainingTime = self.timers[id]['timer'].remainingTime()
         self.timers[id]['remainingTime'] = remainingTime
@@ -57,15 +63,6 @@ class Timers:
     def timerTimeOut(self):
         self.nextTimerToGoOff.timerTimeOut()
         
-
-    # def findNextTimerToGoOff(self):
-    #     minTime = 9000000000000000000000000
-    #     nextTimerId = -1
-    #     for timer in self.timers.values():
-    #         if timer['timer'].remainingTime() < minTime:
-    #             nextTimerId = timer['id']
-    #     self.nextTimerToGoOff = self.timers[nextTimerId]
-
     def getTimer(self, id):
         return self.timers[id]
     
