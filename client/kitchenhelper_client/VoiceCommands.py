@@ -1,15 +1,15 @@
 # voiceCommands = [
-#     "Add a Note", 
-#     "Remove a Note",
-#     "Show notes",
-#     "Show note",
-#     "Show Timers",
-#     "Get a Recipe",
-#     "Remove a Note",
-#     "Add a timer",
-#     "Pause timer",
-#     "Stop timer",
-#     "Select timer"
+    # "Add a Note", 
+    # "Remove a Note",
+    # "Show notes",
+    # "Show note",
+    # "Show Timers",
+    # "Get a Recipe",
+    # "Remove a Note",
+    # "Add a timer",
+    # "Pause timer",
+    # "Stop timer",
+    # "Select timer"
 # ]
 import enum
 
@@ -24,6 +24,7 @@ class VoiceCommands(enum.Enum):
     Pause_timer = "Pause timer"
     Stop_timer = "Stop timer"
     Select_Timer = "Select timer"
+    Nothing = "nothing"
 
     @classmethod
     def list(cls):

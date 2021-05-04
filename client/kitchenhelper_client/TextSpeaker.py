@@ -7,7 +7,8 @@ class TextSpeaker:
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', 100)     # setting up new voice rate
         self.thread = threading.Thread(target=self.sayAndBlock, args=('hello',), daemon=True)
-
+        self.thread.start()
+        
     def say(self, text):
         if self.thread.is_alive():
             self.thread.join()
