@@ -11,7 +11,7 @@ def find_recipe(keywords: str):
         if any(urlparse(url).netloc.endswith(k) for k in SCRAPERS.keys()):
             scraper = scrape_me(url)
             return Recipe(
-                keywords=' '.join(sorted(keywords.split(' '))),
+                url=url,
                 title=scraper.title(),
                 total_time=scraper.total_time(),
                 yields=scraper.yields(),

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
@@ -5,12 +6,14 @@ from pydantic import BaseModel
 
 class NoteBase(BaseModel):
     id: Optional[int]
+    last_modified: Optional[datetime]
     title: str
     content: Optional[str]
 
 
 class Note(NoteBase):
     id: int
+    last_modified: datetime
 
     class Config:
         orm_mode = True
@@ -26,7 +29,7 @@ class User(BaseModel):
 
 
 class Recipe(BaseModel):
-    keywords: str
+    url: str
     title: str
     total_time: Optional[str]
     yields: Optional[str]

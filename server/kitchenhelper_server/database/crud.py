@@ -1,4 +1,5 @@
-from typing import Iterable, List, Optional, Union
+from datetime import datetime, timezone
+from typing import List, Optional
 import uuid
 
 from sqlalchemy.orm import Session
@@ -25,16 +26,19 @@ def create_note(db: Session, note: schemas.NoteBase, user_id: str) -> models.Not
     return new_note
 
 
-def create_recipe(db: Session, recipe: schemas.Recipe) -> models.Recipe:
+def create_recipe(db: Session, recipe: schemas.Recipe, keywords: str) -> models.Recipe:
     new_recipe = models.Recipe(**recipe.dict())
     db.add(new_recipe)
-    db.commit()
+    db.flush()
     db.refresh(new_recipe)
+    db.add(models.RecipeKeywords(keywords=' '.join(sorted(keywords.split(' '))), recipe_id=new_recipe.id))
+    db.commit()
     return new_recipe
 
 
 def replace_note(db: Session, note: schemas.NoteBase, id: int, user_id: str) -> bool:
     note.id = id
+    note.last_modified = note.last_modified or datetime.now(tz=timezone.utc)
     rows = db.query(models.Note) \
         .filter(models.Note.id == id, models.Note.owner_id == user_id) \
         .update(note.dict())
@@ -56,10 +60,35 @@ def get_note_by_id_and_user(db: Session, id: int, user_id: str) -> Optional[mode
     return db.query(models.Note).filter(models.Note.id == id, models.Note.owner_id == user_id).first()
 
 
-def get_recipe_by_keywords(db: Session, keywords: Union[str, Iterable[str]]) -> Optional[models.Recipe]:
-    if type(keywords) == str:
-        keywords = ' '.join(sorted(keywords.split(' ')))
-    else:
-        keywords = ' '.join(sorted(keywords))
+def sync_notes(db: Session, user_id: str, notes: List[schemas.NoteBase]):
+    for note in notes:
+        last_m = note.last_modified or datetime.now()
 
-    return db.query(models.Recipe).filter(models.Recipe.keywords == keywords).first()
+        rows = db.query(models.Note).filter(
+            models.Note.owner_id == user_id,
+            models.Note.id == note.id,
+            models.Note.last_modified < last_m
+        ).update(note.dict())
+
+        if not rows:
+            present = db.query(models.Note).filter_by(owner_id=user_id, id=note.id).count()
+            if not present:
+                create_note(db, note, user_id)
+    
+    db.commit()
+
+
+def get_recipe_by_keywords(db: Session, keywords: str) -> Optional[models.Recipe]:
+    keywords = ' '.join(sorted(keywords.split(' ')))
+
+    return db.query(models.Recipe) \
+        .select_from(models.RecipeKeywords) \
+        .join(models.RecipeKeywords.recipe) \
+        .filter(models.RecipeKeywords.keywords == keywords) \
+        .first()
+
+
+def add_keywords_to_recipe(db: Session, id: int, keywords: str):
+    keywords = ' '.join(sorted(keywords.split(' ')))
+    db.add(models.RecipeKeywords(keywords=keywords, recipe_id=id))
+    db.commit()
