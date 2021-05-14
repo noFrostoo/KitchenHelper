@@ -57,7 +57,7 @@ class Timers:
             }
 
     def count(self):
-        len(self.timers.keys())
+        return len(self.timers.keys())
 
     
     def timerTimeOut(self):

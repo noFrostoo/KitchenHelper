@@ -16,10 +16,17 @@ class Timers(States.BaseState.BaseState):
 
     def enter(self):
         self.showTimers()
+        self.showSelectedTimerOrInfo()
+
+    def showSelectedTimerOrInfo(self):
         if self.selectedTimer.hasTimer():
-            self.showInfo()
+            self.showSelectedTimer()
         else:
-            self.showTimer()
+            self.showInfo()
+
+    def showSelectedTimer(self):
+        self.window.mainArea.setCurrentIndex(0)
+        self.selectedTimer.startUpdating()
 
     def leave(self):
         self.selectedTimer.stopUpdating()
@@ -47,6 +54,13 @@ class Timers(States.BaseState.BaseState):
             self.addToId(8)
         elif e.key() == Qt.Key_9:
             self.addToId(9)
+        elif e.key() == Qt.Key_Plus:
+            self.addTimer()
+        elif e.key() == Qt.Key_Minus:
+            self.removeTimer()
+        elif e.key() == Qt.Key_Comma:
+            self.window.changeState(States.VoiceCommand.VoiceCommand)
+            self.window.List.clear()
         elif e.key() == Qt.Key_Enter:
             self.selectTimer(self.id)
             self.showSelectedTimer()
@@ -57,7 +71,7 @@ class Timers(States.BaseState.BaseState):
             QMessageBox.critical(
             self.window,
             "Error",
-            "<p>Wrong key</p>"
+            f"<p>Wrong key {e.key()}</p>"
             )
     
     def showInfo(self):
@@ -110,14 +124,19 @@ class Timers(States.BaseState.BaseState):
             timerTitle = addTimerDialog.getTitle()
             print(f"text from speech recognition: {timerTitle}")
             time = addTimerDialog.getTime()
+            print(f"time from dialog: {time}")
             self.selectedId = self.window.timers.addTimer(time, timerTitle)
             self.selectedTimer.changeTimer(self.window.timers.getTimer(self.selectedId))
+            self.showSelectedTimerOrInfo()
         else:
             QMessageBox.critical(
             self.window,
             "Error",
             f"<p>{addTimerDialog.getError()}</p>"
             )    
+    
+    def removeTimer(self):
+        self.window.timers.removeTimer(self.selectedId)
     
 
 class SelectedTimer(threading.Thread):
@@ -126,23 +145,26 @@ class SelectedTimer(threading.Thread):
         self.window = window
         self.ifRun = False
         self.timer = timer
-        self.fullTime = timer['time']
-        self.clockScale = window.timerClock.upperBound()
-
 
     def changeTimer(self, newTimer):
+        print(f"new timer change {newTimer}")
         self.timer = newTimer
+        self.fullTime = newTimer['time']
     
+    def startUpdating(self):
+        self.run()
+
     def run(self):
-        self.ifRun = True
-        while self.ifRun:
-            self.update()
+        if self.hasTimer():
+            self.ifRun = True
+            while self.ifRun:
+                self.update()
+        else:
+            raise NoTimerSelected
 
     def update(self):
         remainingTime = self.timer['timer'].remainingTime()
         progresBarValue = (remainingTime/self.fullTime)*100
-        clockValue = (remainingTime/self.fullTime)*self.clockScale
-        self.window.timerClock.upperBound(clockValue)
         self.window.timerProgressBar.setValue(progresBarValue)
         remainingTimeText = formatTime(remainingTime)
         self.window.remainingTimeText.setText(remainingTimeText)
@@ -182,3 +204,7 @@ def formatTime(ms):
     h,m=divmod(m,60)
     d,h=divmod(h,24)
     return f"{d}:{h}:{m}:{s}"
+
+
+class NoTimerSelected(Exception):
+    pass
