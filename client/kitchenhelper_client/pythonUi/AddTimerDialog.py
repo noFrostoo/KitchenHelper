@@ -39,6 +39,7 @@ class AddTimerDialog(ListenDialog):
             f"<p>Could not understand the number: {minutes} or {seconds}</p>"
             )
             self.reject()
+            return
         self.ms = seconds*1000 + minutes*60000
         
     def getTime(self):

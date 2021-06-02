@@ -58,9 +58,13 @@ class Timers(States.BaseState.BaseState):
             self.addTimer()
         elif e.key() == Qt.Key_Minus:
             self.removeTimer()
-        elif e.key() == Qt.Key_Comma:
+        elif e.key() == Qt.Key_Period:
             self.window.changeState(States.VoiceCommand.VoiceCommand)
             self.window.List.clear()
+        elif e.key() == Qt.Key_Slash:
+            self.startTimer()
+        elif e.key() == Qt.Key_Asterisk:
+            print('fu2')
         elif e.key() == Qt.Key_Enter:
             self.selectTimer(self.id)
             self.showSelectedTimer()
@@ -175,6 +179,9 @@ class SelectedTimer(threading.Thread):
 
     def hasTimer(self):
         return self.timer is not None
+    
+    # def isRunning(self):
+    #     pass
 
 
 class TimersListUpdater(threading.Thread):
