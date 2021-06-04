@@ -14,7 +14,6 @@ class Config:
             self._createConfig()
          
     def _createConfig(self):
-        #TODO: think how to display server dialog and get data from it
         self.dialog = ServerDialog()
         if self.dialog.exec():
             addres = self.dialog.getServerAddress()
