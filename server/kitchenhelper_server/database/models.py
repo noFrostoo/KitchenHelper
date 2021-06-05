@@ -20,7 +20,7 @@ class Note(Base):
     owner_id = Column(String(length=36), ForeignKey('users.id'), primary_key=True, index=True)
     id = Column(Integer, primary_key=True, index=True)
     last_modified = Column(DateTime, nullable=False, default=lambda: datetime.now(tz=timezone.utc))
-    title = Column(String, unique=True, nullable=False)
+    title = Column(String, nullable=False)
     content = Column(String)
 
     owner = relationship('User', back_populates='notes')

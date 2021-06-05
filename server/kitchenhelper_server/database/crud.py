@@ -36,14 +36,16 @@ def create_recipe(db: Session, recipe: schemas.Recipe, keywords: str) -> models.
     return new_recipe
 
 
-def replace_note(db: Session, note: schemas.NoteBase, id: int, user_id: str) -> bool:
+def replace_note(db: Session, note: schemas.NoteBase, id: int, user_id: str) -> Optional[models.Note]:
     note.id = id
     note.last_modified = note.last_modified or datetime.now(tz=timezone.utc)
+
     rows = db.query(models.Note) \
         .filter(models.Note.id == id, models.Note.owner_id == user_id) \
         .update(note.dict())
     db.commit()
-    return rows != 0
+
+    return models.Note(**note.dict()) if rows != 0 else None
 
 
 def delete_note(db: Session, id: int, user_id: str) -> bool:
@@ -53,7 +55,10 @@ def delete_note(db: Session, id: int, user_id: str) -> bool:
 
 
 def get_notes_by_user(db: Session, user_id: str) -> List[models.Note]:
-    return db.query(models.Note).filter(models.Note.owner_id == user_id).all()
+    return db.query(models.Note) \
+        .filter(models.Note.owner_id == user_id) \
+        .order_by(models.Note.last_modified.desc()) \
+        .all()
 
 
 def get_note_by_id_and_user(db: Session, id: int, user_id: str) -> Optional[models.Note]:
