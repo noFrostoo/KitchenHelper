@@ -70,9 +70,8 @@ class Notes(States.BaseState.BaseState):
                                 '<p> Available voice commands: </p>')
     
     def showNotesInfo(self):
-        self.list = self.window.dataStore.getNotesList()
-        for note in self.list:
-            self.window.List.addItem(f'Id: {note["noteId"]}, {note["title"]}')
+        for i, note in enumerate(self.window.dataStore.getAllNotes()):
+            self.window.List.addItem(f'{i}: {note.title}')
     
     def addToId(self, number):
         self.id += self.idSize * 10 + number
@@ -82,15 +81,15 @@ class Notes(States.BaseState.BaseState):
 
     def selectNote(self, id):
         self.selectedNote = self.window.dataStore.getNote(id)
-        self.window.textSpeaker.say("Note Title is " + self.selectedNote['title'])
-        self.window.textSpeaker.say("Note contents are  " + self.selectedNote['note'])
+        self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
+        self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
         self.id = 0
         self.idSize = 0
     
     def showSelectedNote(self):
-        self.window.TextArea.setText(f'<h1>{self.selectedNote["title"]}</h1>'
-                                f'{self.selectedNote["note"]}')
-        self.window.statusbar.showMessage(f'Selected note: {self.selectedNote["title"]}')
+        self.window.TextArea.setText(f'<h1>{self.selectedNote.title}</h1>'
+                                f'{self.selectedNote.content}')
+        self.window.statusbar.showMessage(f'Selected note: {self.selectedNote.title}')
 
     def removeNote(self):
         pass
