@@ -3,37 +3,36 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
 from PyQt5.QtWidgets import (
   QMessageBox
 )
-import threading
 from kitchenhelper_client.pythonUi.AddTimerDialog import AddTimerDialog
 from time import sleep
 
 class Timers(States.BaseState.BaseState):
     def __init__(self, window):
         self.window = window
-        self.selectedTimer = SelectedTimer(window, None)
-        self.timersListUpdater = TimersListUpdater(window)
+        self.updeter = Updater(window, None)
         self.selectedId = -1
         self.updateTimersList = False
-        self.selectedTimer.updateMainArea.connect(self.updateMainArea)
-        self.timersListUpdater.updateList.connect(self.updateTimerList)
+        self.updeter.updateSelectedTimerSignal.connect(self.updateMainArea)
+        self.updeter.updateTimerListSignal.connect(self.updateTimerList)
+        self.window.timers.timerTimeout.connect(self.timerTimeout)
 
     def enter(self):
+        self.updeter.start()
         self.showTimers()
         self.showSelectedTimerOrInfo()
 
     def showSelectedTimerOrInfo(self):
-        if self.selectedTimer.hasTimer():
+        if self.updeter.hasTimer():
             self.showSelectedTimer()
         else:
             self.showInfo()
 
     def showSelectedTimer(self):
         self.window.mainArea.setCurrentIndex(0)
-        self.selectedTimer.startUpdating()
+        self.updeter.startUpdatingTimer()
 
     def leave(self):
-        self.selectedTimer.stopUpdating()
-        self.timersListUpdater.stopUpdating()
+        self.updeter.stopUpdating()
         self.window.List.clear()
 
     def keyPressEvent(self, e):
@@ -99,26 +98,30 @@ class Timers(States.BaseState.BaseState):
 
     def startTimerListUpdating(self):
         self.window.List.clear()
-        self.timersListUpdater.run()
+        self.updeter.startUpdatingList()
 
     def showSelectedTimer(self):
         self.window.mainArea.setCurrentIndex(0)
-        self.selectedTimer.start()
+        self.updeter.startUpdatingTimer()
     
     def selectTimer(self, id):
-        self.selectedTimer.changeTimer(self.window.timers.getTimer(id))
+        self.updeter.changeTimer(self.window.timers.getTimer(id))
         self.selectedId = id
         self.id = 0
         self.idSize = 0
 
     def pauseTimer(self):
         self.window.timers.pauseTimer(self.selectedId)
+        self.updeter.stopUpdatingTimer()
 
     def stopTimer(self):
         self.window.timers.stopTimer(self.selectedId)
+        self.updeter.stopUpdatingTimer()
     
     def startTimer(self):
         self.window.timers.startTimer(self.selectedId)
+        self.updeter.startUpdatingTimer()
+        self.updeter.startUpdatingList()
     
     def addToId(self, number):
         self.id += self.idSize * 10 + number
@@ -133,7 +136,7 @@ class Timers(States.BaseState.BaseState):
             time = addTimerDialog.getTime()
             print(f"time from dialog: {time}")
             self.selectedId = self.window.timers.addTimer(time, timerTitle)
-            self.selectedTimer.changeTimer(self.window.timers.getTimer(self.selectedId))
+            self.updeter.changeTimer(self.window.timers.getTimer(self.selectedId))
             self.showSelectedTimerOrInfo()
             print(f"showing ")
             self.showTimers()
@@ -146,6 +149,8 @@ class Timers(States.BaseState.BaseState):
     
     def removeTimer(self):
         self.window.timers.removeTimer(self.selectedId)
+        if self.window.timers.count() == 0:
+            self.updeter.stopUpdatingList()
     
     def updateMainArea(self, timer, fullTime):
         remainingTime = timer['timer'].remainingTime()
@@ -157,77 +162,67 @@ class Timers(States.BaseState.BaseState):
     def updateTimerList(self):
         self.window.List.clear()
         timers = self.window.timers.getTimers()
+        print('updating timers list')
         for timer in timers.values():
             remainingTimeText = formatTime(timer['timer'].remainingTime())
             self.window.List.addItem(f'Id: {timer["id"]}, {remainingTimeText}')
 
-class SelectedTimer(QThread):
-    updateMainArea = pyqtSignal(object, int)
+    def timerTimeout(self, timer):
+        self.selectedId
+
+class Updater(QThread):
+    updateSelectedTimerSignal = pyqtSignal(object, int)
+    updateTimerListSignal = pyqtSignal()
 
     def __init__(self, window, timer):
         super().__init__(window)
         self.window = window
         self.ifRun = False
+        self.updateSelectedTimer = False
+        self.updateList = False
         self.timer = timer
-
+        
     def changeTimer(self, newTimer):
         print(f"new timer change {newTimer}")
         self.timer = newTimer
         self.fullTime = newTimer['time']
     
-    def startUpdating(self):
-        self.run()
+    def startUpdatingTimer(self):
+        self.updateSelectedTimer = True
+
+    def startUpdatingList(self):
+        self.updateList = True
 
     def run(self):
-        if self.hasTimer():
-            self.ifRun = True
-            while self.ifRun:
-                self.updateMainArea.emit(self.timer, self.fullTime)
-                sleep(1)
-        else:
-            raise NoTimerSelected
-
-    def update(self):
-        remainingTime = self.timer['timer'].remainingTime()
-        progresBarValue = (remainingTime/self.fullTime)*100
-        self.window.timerProgressBar.setValue(progresBarValue)
-        remainingTimeText = formatTime(remainingTime)
-        self.window.remainingTimeText.setText(remainingTimeText)
+        self.ifRun = True
+        while self.ifRun:
+            if self.hasTimer() and self.updateSelectedTimer:
+                self.updateSelectedTimerSignal.emit(self.timer, self.fullTime)
+            if self.updateList:
+                self.updateTimerListSignal.emit()
+            sleep(1)
     
     def stopUpdating(self):
         self.ifRun = False
 
+    def stopUpdatingTimer(self):
+        self.updateSelectedTimer = False 
 
+    def stopUpdatingList(self):
+        self.updateList = False
+    
     def hasTimer(self):
         return self.timer is not None
     
     # def isRunning(self):
     #     pass
 
-
-class TimersListUpdater(QThread):
-    updateList = pyqtSignal()
-    
-    def __init__(self, window):
-        super().__init__(window)
-        self.window = window
-        self.ifRun = False
-        
-    def run(self):
-        self.ifRun = True
-        while self.ifRun:
-            self.updateList.emit()
-            sleep(1)
-
-    def stopUpdating(self):
-        self.ifRun = False
-
 def formatTime(ms):
     s=ms/1000
     m,s=divmod(s,60)
     h,m=divmod(m,60)
     d,h=divmod(h,24)
-    return f"{d}:{h}:{m}:{s}"
+    return f"{d:0}:{h:02}:{m:02}:{s:02}"
 
 
 class NoTimerSelected(Exception):

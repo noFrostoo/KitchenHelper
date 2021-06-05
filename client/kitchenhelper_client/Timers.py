@@ -1,12 +1,15 @@
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread, QObject
 import threading
 from PyQt5.QtWidgets import (
   QMessageBox
 )
 from time import sleep
 
-class Timers:
+class Timers(QObject):
+    timerTimeout = pyqtSignal(object)
+
     def __init__(self, window):
+        super().__init__(window)
         self.window = window
         self.timers = {}
         self.nextId = 0
@@ -35,22 +38,27 @@ class Timers:
         self.timers.pop(id, None)
         self.nextTimerToGoOff.findNextTimerToGoOff()
 
+
     def stopTimer(self, id):
         self.timers[id]['timer'].stop()
         self.timers[id]['remainingTime'] = 0
         self.nextTimerToGoOff.findNextTimerToGoOff()
+        if self.nextTimerToGoOff.isRunning() and self.nextTimerToGoOff.isNextTimerToGoOff(id):
+            self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def pauseTimer(self, id):
         remainingTime = self.timers[id]['timer'].remainingTime()
         self.timers[id]['timer'].stop()
         self.timers[id]['remainingTime'] = remainingTime
         self.nextTimerToGoOff.findNextTimerToGoOff()
+        if self.nextTimerToGoOff.isRunning() and self.nextTimerToGoOff.isNextTimerToGoOff(id):
+            self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def startTimer(self, id):
         self.timers[id]['timer'].start(self.timers[id]['time'])
         self.nextTimerToGoOff.findNextTimerToGoOff()
-        if self.nextTimerToGoOff.isRunning():
-            self.nextTimerToGoOff.run()
+        if not self.nextTimerToGoOff.isRunning():
+            self.nextTimerToGoOff.start()
 
     def getTimerInfo(self, id):
         remainingTime = self.timers[id]['timer'].remainingTime()
@@ -69,8 +77,9 @@ class Timers:
         QMessageBox.critical(
         self.window,
         "TIMER TIMEOUT",
-        f"<p>{self.timer['title']} has timed out</p>"
+        f"<p>{self.nextTimerToGoOff.timer['title']} has timed out</p>"
         )
+        self.removeTimer(self.nextTimerToGoOff.timer['id'])
         self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def getTimer(self, id):
@@ -105,11 +114,19 @@ class NextTimerToGoOff(QThread):
         self.ifRun = False
     
     def findNextTimerToGoOff(self):
-        minTime = 9000000000000000000000000
+        changed = False
+        minTime = 900000000000000
         nextTimerId = -1
         for timer in self.Timers.values():
-            if timer['timer'].remainingTime() < minTime:
+            if timer['timer'].isActive() and timer['timer'].remainingTime() < minTime:
                 nextTimerId = timer['id']
+                changed = True
+        if not changed:
+            self.stop()
+            return
         self.timer = self.Timers[nextTimerId]
+    
+    def isNextTimerToGoOff(self, id):
+        return self.timer['id'] == id
 
     
