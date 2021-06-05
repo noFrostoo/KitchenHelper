@@ -54,8 +54,11 @@ class VoiceCommand(States.BaseState.BaseState):
             self.window.changeState(States.Notes.Notes)
         elif self.command == VoiceCommands.Show_Timers:
             self.window.changeState(States.Timers.Timers)
+        elif self.command == VoiceCommands.Show_recipes:
+            self.window.changeState(States.Recipes.Recipes)
         elif self.command == VoiceCommands.Get_a_Recipe:
-            self.notImplemted()
+            self.window.changeState(States.Recipes.Recipes)
+            self.window.state.listenToDish()
         elif self.command == VoiceCommands.Pause_timer:
             self.notImplemted()
         elif self.command == VoiceCommands.Stop_timer:

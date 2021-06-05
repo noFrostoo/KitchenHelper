@@ -9,13 +9,13 @@ class AddNoteDialog(ListenDialog):
     
     def doTheListen(self):
         audio = self.vi.listen()
-        self.label.setText("Analizing...")
+        self.label.setText("Analyzing...")
         QApplication.processEvents()
         self.text = self.vi.recognize(audio)
         self.label.setText("Listening for note contents")
         QApplication.processEvents()
         audio = self.vi.listen()
-        self.label.setText("Analizing...")
+        self.label.setText("Analyzing...")
         QApplication.processEvents()
         self.note = self.vi.recognize(audio)
 

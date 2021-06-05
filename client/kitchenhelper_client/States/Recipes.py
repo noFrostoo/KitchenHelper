@@ -1,7 +1,10 @@
 from typing import Optional
+
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox
 
 from kitchenhelper_client.MainWindow import MainWindow
+from kitchenhelper_client.pythonUi.ListenDialog import ListenDialog
 from kitchenhelper_client.States.Idle import Idle
 from kitchenhelper_client.States.BaseState import BaseState
 
@@ -86,3 +89,27 @@ class Recipes(BaseState):
             '<p>You can view a previously used recipe using number (0-9) or arrow keys</p>'
             '<p>You can also search for a new recipe by saying "Get a recipe for" and then a name of a dish</p>'
         )
+
+    def listenToDish(self):
+        dialog = ListenDialog(self.window)
+
+        if dialog.exec():
+            dish = dialog.getText()
+            recipe = self.window.dataStore.getRecipe(dish)
+
+            if recipe is None:
+                QMessageBox.critical(
+                    self.window,
+                    'Recipe not found',
+                    f'Could not find recipe for "{dish}"'
+                )
+                return
+            
+            self.enter()
+            self.selectRecipe(0)
+        else:
+            QMessageBox.critical(
+                self.window,
+                'Error',
+                f'{dialog.getError()}'
+            )

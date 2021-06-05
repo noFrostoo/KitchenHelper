@@ -30,7 +30,7 @@ class DataStore:
             self.data['notes'] = {}
             self.data['recipes'] = {}
 
-            self._save()
+        self._save()
 
     def __del__(self):
         self._save()
@@ -73,15 +73,20 @@ class DataStore:
 
     def editNote(self, id: int, text: str):
         self.data['notes'][id].content = text
-        self.req_handler.replaceNote(id, self.data['notes'][id])
+        self.data['notes'][id] = self.req_handler.replaceNote(id, self.data['notes'][id])
 
     def getAllRecipes(self):
-        return self.data['recipes'].values()
+        return reversed(self.data['recipes'].values())
 
     def getRecipe(self, dish: str):
         dish = dish.strip()
         
-        if dish not in self.data['recipes']:
-            self.data['recipes'][dish] = self.req_handler.getRecipe(dish)
-        
-        return self.data['recipes'][dish]
+        if dish in self.data['recipes']:
+            return self.data['recipes'][dish]
+
+        recipe = self.req_handler.getRecipe(dish)
+
+        if recipe is not None:
+            self.data['recipes'][dish] = recipe
+
+        return recipe

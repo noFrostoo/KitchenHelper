@@ -15,7 +15,7 @@ class RequestHandler:
             raise Exception('User has not been registered!')
 
     def registerUser(self):
-        response = requests.get(urljoin(self.base_url, '/users/register'))
+        response = requests.post(urljoin(self.base_url, '/users/register'))
         response.raise_for_status()
         self.user_id = response.json()
         return response.json()
@@ -57,8 +57,7 @@ class RequestHandler:
             data=note.json()
         )
         response.raise_for_status()
-        # TODO: server should respond with the updated note
-        return response.json()
+        return Note.parse_obj(response.json())
 
     def deleteNote(self, note_id: int):
         self._check_user()
