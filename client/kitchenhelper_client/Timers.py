@@ -1,8 +1,10 @@
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
 import threading
 from PyQt5.QtWidgets import (
   QMessageBox
 )
+from time import sleep
+
 class Timers:
     def __init__(self, window):
         self.window = window
@@ -12,6 +14,7 @@ class Timers:
         self.ifUpdateTimerList = False
         self.UpdateNextTimerToGoOffLookupThread = None
         self.window.TimerText.setText(f'<h1 style="text-align:center">No Timer Active</h1>')
+        self.nextTimerToGoOff.update.connect(self.updateNextTimertoGoOff)
 
     def addTimer(self, time, title):
         id = self.nextId
@@ -46,6 +49,8 @@ class Timers:
     def startTimer(self, id):
         self.timers[id]['timer'].start(self.timers[id]['time'])
         self.nextTimerToGoOff.findNextTimerToGoOff()
+        if self.nextTimerToGoOff.isRunning():
+            self.nextTimerToGoOff.run()
 
     def getTimerInfo(self, id):
         remainingTime = self.timers[id]['timer'].remainingTime()
@@ -61,28 +66,40 @@ class Timers:
 
     
     def timerTimeOut(self):
-        self.nextTimerToGoOff.timerTimeOut()
-        
+        QMessageBox.critical(
+        self.window,
+        "TIMER TIMEOUT",
+        f"<p>{self.timer['title']} has timed out</p>"
+        )
+        self.nextTimerToGoOff.findNextTimerToGoOff()
+
     def getTimer(self, id):
         return self.timers[id]
     
     def getTimers(self):
         return self.timers
+    
+    def updateNextTimertoGoOff(self, timer):
+        time = timer['timer'].remainingTime()
+        self.window.TimerText.setText(f'<h1 style="text-align:center">Time remaining: {time}</h1>')
 
 
-class NextTimerToGoOff(threading.Thread):
+class NextTimerToGoOff(QThread):
+    update = pyqtSignal(object)
+    
     def __init__(self, window, Timers):
-        threading.Thread.__init__(self)
+        super().__init__(window)
         self.window = window
         self.Timers = Timers
         self.ifRun = False
         self.timer = None
+        
 
     def run(self):
         self.ifRun = True
         while self.ifRun:
-            time = self.timer['timer'].remainingTime()
-            self.window.TimerText.setText(f'<h1 style="text-align:center">Time remaining: {time}</h1>')
+            self.update.emit(self.timer)
+            sleep(1)
     
     def stop(self):
         self.ifRun = False
@@ -94,12 +111,5 @@ class NextTimerToGoOff(threading.Thread):
             if timer['timer'].remainingTime() < minTime:
                 nextTimerId = timer['id']
         self.timer = self.Timers[nextTimerId]
-    
-    def timerTimeOut(self):
-        QMessageBox.critical(
-        self.window,
-        "TIMER TIMEOUT",
-        f"<p>{self.timer['title']} has timed out</p>"
-        )
-        self.findNextTimerToGoOff()
+
     
