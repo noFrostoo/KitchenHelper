@@ -15,17 +15,11 @@ class Note(NoteBase):
     id: int
     last_modified: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class User(BaseModel):
     id: str
     last_note_id: int = 0
     notes: List[Note]
-
-    class Config:
-        orm_mode = True
 
 
 class Recipe(BaseModel):
@@ -37,6 +31,3 @@ class Recipe(BaseModel):
     instructions: Optional[str]
     nutrients: Dict[str, str]
     image: Optional[str]
-
-    class Config:
-        orm_mode = True

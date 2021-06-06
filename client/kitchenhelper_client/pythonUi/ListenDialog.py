@@ -51,6 +51,6 @@ class ListenDialog(QDialog, Ui_Dialog):
     
     def doTheListen(self):
         audio = self.vi.listen()
-        self.label.setText('Analizing...')
+        self.label.setText('Analyzing...')
         QApplication.processEvents()
         self.text = self.vi.recognize(audio)

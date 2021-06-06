@@ -1,4 +1,5 @@
-from sqlalchemy import BLOB, Column, ForeignKey, Integer, String
+from datetime import datetime, timezone
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String
 from sqlalchemy.orm import relationship
 
 from .setup import Base
@@ -18,7 +19,8 @@ class Note(Base):
 
     owner_id = Column(String(length=36), ForeignKey('users.id'), primary_key=True, index=True)
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, unique=True, nullable=False)
+    last_modified = Column(DateTime, nullable=False, default=lambda: datetime.now(tz=timezone.utc))
+    title = Column(String, nullable=False)
     content = Column(String)
 
     owner = relationship('User', back_populates='notes')
@@ -27,10 +29,23 @@ class Note(Base):
 class Recipe(Base):
     __tablename__ = 'recipes'
 
-    id = Column(Integer, primary_key=True, index=True)
-    keywords = Column(String, unique=True, nullable=False, index=True)
-    title = Column(String, unique=True, nullable=False)
-    ingredients = Column(String)
-    instructions = Column(String)
+    id = Column(Integer, primary_key=True)
+    url = Column(String, unique=True, nullable=False, index=True)
+    title = Column(String, nullable=False)
     total_time = Column(String)
-    image = Column(BLOB)
+    yields = Column(String)
+    ingredients = Column(PickleType)
+    instructions = Column(String)
+    nutrients = Column(PickleType)
+    image = Column(String)
+
+    keywords = relationship('RecipeKeywords', back_populates='recipe')
+
+
+class RecipeKeywords(Base):
+    __tablename__ = 'recipe_keywords'
+
+    keywords = Column(String, primary_key=True, index=True)
+    recipe_id = Column(Integer, ForeignKey('recipes.id'))
+    
+    recipe = relationship('Recipe', back_populates='keywords')

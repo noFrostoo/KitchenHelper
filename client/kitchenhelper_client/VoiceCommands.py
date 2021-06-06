@@ -19,6 +19,7 @@ class VoiceCommands(enum.Enum):
     Show_notes = "Show notes"
     Show_note = "Show note"
     Show_Timers = "Show Timers"
+    Show_recipes = "Show recipes"
     Get_a_Recipe = "Get a Recipe"
     Add_a_timer = "Add a timer"
     Pause_timer = "Pause timer"

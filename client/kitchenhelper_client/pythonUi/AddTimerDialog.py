@@ -14,13 +14,13 @@ class AddTimerDialog(ListenDialog):
         minutes = None
         seconds = None
         audio = self.vi.listen()
-        self.label.setText("Analizing...")
+        self.label.setText("Analyzing...")
         QApplication.processEvents()
         self.text = self.vi.recognize(audio)
         self.label.setText("Listening for minutes")
         QApplication.processEvents()
         audio = self.vi.listen()
-        self.label.setText("Analizing...")
+        self.label.setText("Analyzing...")
         QApplication.processEvents()
         minutes = self.vi.recognize(audio)
         try:
@@ -28,7 +28,7 @@ class AddTimerDialog(ListenDialog):
             self.label.setText("Listening for seconds")
             QApplication.processEvents()
             audio = self.vi.listen()
-            self.label.setText("Analizing...")
+            self.label.setText("Analyzing...")
             QApplication.processEvents()
             seconds = self.vi.recognize(audio)
             seconds = w2n.word_to_num(seconds)

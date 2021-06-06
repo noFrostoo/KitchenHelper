@@ -1,53 +1,92 @@
+import json
+from pathlib import Path
+from PyQt5.QtWidgets import QMessageBox
+
+from .pythonUi.ServerDialog import ServerDialog
+from .RequestHandler import RequestHandler
+from .schemas import Note, NoteBase, Recipe
+
 class DataStore:
-    def __init__(self, window):
-        self.window = window
-        self.nextId = 5
-        self.notes = {
-            1 : {
-            'noteId': 1,
-            'title': 'note1',
-            'note': 'notenote'
-            },
-            2 : {
-            'noteId': 2,
-            'title': 'note2',
-            'note': 'notenote'
-            },
-            3 : {
-            'noteId': 3,
-            'title': 'note3',
-            'note': 'notenote'
-            },
-            4 : {
-            'noteId': 4,
-            'title': 'note4',
-            'note': 'notenote'
-            },
-        }
-    
-    def getNotesList(self):
-        notesList = []
-        for note in self.notes.values():
-            notesList.append({
-                'noteId': note['noteId'],
-                'title': note['title']
-            })
-        return notesList
-    
+    DATASTORE_FILE = Path('data.json')
 
-    def getNote(self, id):
-        return self.notes[id]
+    def __init__(self):
+        self.data = {}
 
-    def addNote(self, title, text):
-        self.notes[self.nextId] = {
-            'noteId': self.nextId,
-            'title': title,
-            'note': text
-        }
-        self.nextId += 1
-    
-    def removeNote(self, id):
-        self.notes.pop(id, None)
+        if self.DATASTORE_FILE.exists():
+            with self.DATASTORE_FILE.open() as fp:
+                self.data = json.load(fp)
 
-    def editNote(self, id, text):
-        self.notes[id]['note'] = text
+            self.data['notes'] = {int(k): Note.parse_obj(v) for k, v in self.data['notes']}
+            self.data['recipes'] = {k: Recipe.parse_obj(v) for k, v in self.data['recipes']}
+            
+            self.req_handler = RequestHandler(self.data['server_address'], self.data['user_id'])
+
+            self.data['notes'] = {note.id: note for note in self.req_handler.syncNotes(self.data['notes'].values())}
+        
+        else:
+            self.data['server_address'] = self._get_server_address()
+            self.req_handler = RequestHandler(self.data['server_address'], None)
+            self.data['user_id'] = self.req_handler.registerUser()
+            self.data['notes'] = {}
+            self.data['recipes'] = {}
+
+        self._save()
+
+    def __del__(self):
+        self._save()
+
+    def _save(self):
+        self.data['notes'] = {k: v.dict() for k, v in self.data['notes']}
+        self.data['recipes'] = {k: v.dict() for k, v in self.data['recipes']}
+
+        with self.DATASTORE_FILE.open('w') as fp:
+            json.dump(self.data, fp)
+
+
+    @staticmethod
+    def _get_server_address():
+        dialog = ServerDialog()
+
+        if dialog.exec():
+            return dialog.getServerAddress()
+        else:
+            QMessageBox.critical(
+                dialog,
+                "Error",
+                "<p>Dialog did not exit correctly</p>"
+            )
+            exit(1)
+
+    def getAllNotes(self):
+        return self.data['notes'].values()
+
+    def getNote(self, id: int):
+        return self.data['notes'][id]
+
+    def addNote(self, title: str, text: str):
+        note = self.req_handler.uploadNote(NoteBase(title=title, content=text))
+        self.data['notes'][note.id] = note
+
+    def removeNote(self, id: int):
+        self.req_handler.deleteNote(id)
+        del self.data['notes'][id]
+
+    def editNote(self, id: int, text: str):
+        self.data['notes'][id].content = text
+        self.data['notes'][id] = self.req_handler.replaceNote(id, self.data['notes'][id])
+
+    def getAllRecipes(self):
+        return reversed(self.data['recipes'].values())
+
+    def getRecipe(self, dish: str):
+        dish = dish.strip()
+        
+        if dish in self.data['recipes']:
+            return self.data['recipes'][dish]
+
+        recipe = self.req_handler.getRecipe(dish)
+
+        if recipe is not None:
+            self.data['recipes'][dish] = recipe
+
+        return recipe
