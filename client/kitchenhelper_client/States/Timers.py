@@ -162,7 +162,6 @@ class Timers(States.BaseState.BaseState):
     def updateTimerList(self):
         self.window.List.clear()
         timers = self.window.timers.getTimers()
-        print('updating timers list')
         for timer in timers.values():
             remainingTimeText = formatTime(timer['timer'].remainingTime())
             self.window.List.addItem(f'Id: {timer["id"]}, {remainingTimeText}')

@@ -29,7 +29,7 @@ class RequestHandler:
     def syncNotes(self, notes: Iterable[NoteBase]):
         self._check_user()
         data = json.dumps([n.dict() for n in notes])
-        response = requests.post(urljoin(self.base_url, f'/notes/{self.user_id}'), data=data)
+        response = requests.post(urljoin(self.base_url, f'/notes/{self.user_id}/sync'), data=data)
         response.raise_for_status()
         return [Note.parse_obj(note) for note in response.json()]
 

@@ -32,6 +32,7 @@ class VoiceCommand(States.BaseState.BaseState):
             "Error",
             f"<p>{dialog.getError()}</p>"
             )
+            self.window.changeState(States.Idle.Idle)
     
     def execCommand(self):
         try:
@@ -81,13 +82,3 @@ class VoiceCommand(States.BaseState.BaseState):
         f"<p>couldn't understand command</p>"
         )
         self.window.changeState(States.Idle.Idle) 
-    # Add_A_Note = "Add a Note"
-    # Remove_a_Note = "Remove a Note"
-    # Show_notes = "Show notes"
-    # Show_note = "Show note"
-    # Show_Timers = "Show Timers"
-    # Get_a_Recipe = "Get a Recipe"
-    # Add_a_timer = "Add a timer"
-    # Pause_timer = "Pause timer"
-    # Stop_timer = "Stop timer"
-    # Select_Timer = "Select timer"

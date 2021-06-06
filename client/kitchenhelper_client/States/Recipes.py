@@ -1,15 +1,17 @@
+from kitchenhelper_client import States 
 from typing import Optional
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
 
-from kitchenhelper_client.MainWindow import MainWindow
+#from kitchenhelper_client.MainWindow import MainWindow
 from kitchenhelper_client.pythonUi.ListenDialog import ListenDialog
-from kitchenhelper_client.States.Idle import Idle
-from kitchenhelper_client.States.BaseState import BaseState
+# from kitchenhelper_client.States.Idle import Idle
+# from kitchenhelper_client.States.BaseState import BaseState
 
-class Recipes(BaseState):
-    def __init__(self, window: MainWindow):
+
+class Recipes(States.BaseState.BaseState):
+    def __init__(self, window):
         super().__init__(window)
         self.currentIndex = None
 
@@ -40,7 +42,7 @@ class Recipes(BaseState):
 
         elif e.key() == Qt.Key.Key_Escape:
             self.window.List.clear()
-            self.window.changeState(Idle)
+            self.window.changeState(States.Idle.Idle)
     
     def selectRecipe(self, index: Optional[int]):
         if index is None:
