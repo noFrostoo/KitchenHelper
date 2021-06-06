@@ -1,0 +1,10 @@
+[Unit]
+Description=Kitchen Helper service
+
+[Service]
+WorkingDirectory=/home/pi/KitchenHelper/client
+ExecStart=/usr/bin/python3 -m kitchenhelper_client
+CPUSchedulingPolicy=rr
+
+[Install]
+WantedBy=multi-user.target

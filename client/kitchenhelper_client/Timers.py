@@ -1,10 +1,15 @@
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread, QObject
 import threading
 from PyQt5.QtWidgets import (
   QMessageBox
 )
-class Timers:
+from time import sleep
+
+class Timers(QObject):
+    timerTimeout = pyqtSignal(object)
+
     def __init__(self, window):
+        super().__init__(window)
         self.window = window
         self.timers = {}
         self.nextId = 0
@@ -12,6 +17,7 @@ class Timers:
         self.ifUpdateTimerList = False
         self.UpdateNextTimerToGoOffLookupThread = None
         self.window.TimerText.setText(f'<h1 style="text-align:center">No Timer Active</h1>')
+        self.nextTimerToGoOff.update.connect(self.updateNextTimertoGoOff)
 
     def addTimer(self, time, title):
         id = self.nextId
@@ -32,20 +38,27 @@ class Timers:
         self.timers.pop(id, None)
         self.nextTimerToGoOff.findNextTimerToGoOff()
 
+
     def stopTimer(self, id):
         self.timers[id]['timer'].stop()
         self.timers[id]['remainingTime'] = 0
         self.nextTimerToGoOff.findNextTimerToGoOff()
+        if self.nextTimerToGoOff.isRunning() and self.nextTimerToGoOff.isNextTimerToGoOff(id):
+            self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def pauseTimer(self, id):
         remainingTime = self.timers[id]['timer'].remainingTime()
         self.timers[id]['timer'].stop()
         self.timers[id]['remainingTime'] = remainingTime
         self.nextTimerToGoOff.findNextTimerToGoOff()
+        if self.nextTimerToGoOff.isRunning() and self.nextTimerToGoOff.isNextTimerToGoOff(id):
+            self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def startTimer(self, id):
         self.timers[id]['timer'].start(self.timers[id]['time'])
         self.nextTimerToGoOff.findNextTimerToGoOff()
+        if not self.nextTimerToGoOff.isRunning():
+            self.nextTimerToGoOff.start()
 
     def getTimerInfo(self, id):
         remainingTime = self.timers[id]['timer'].remainingTime()
@@ -61,45 +74,59 @@ class Timers:
 
     
     def timerTimeOut(self):
-        self.nextTimerToGoOff.timerTimeOut()
-        
+        QMessageBox.critical(
+        self.window,
+        "TIMER TIMEOUT",
+        f"<p>{self.nextTimerToGoOff.timer['title']} has timed out</p>"
+        )
+        self.removeTimer(self.nextTimerToGoOff.timer['id'])
+        self.nextTimerToGoOff.findNextTimerToGoOff()
+
     def getTimer(self, id):
         return self.timers[id]
     
     def getTimers(self):
         return self.timers
+    
+    def updateNextTimertoGoOff(self, timer):
+        time = timer['timer'].remainingTime()
+        self.window.TimerText.setText(f'<h1 style="text-align:center">Time remaining: {time}</h1>')
 
 
-class NextTimerToGoOff(threading.Thread):
+class NextTimerToGoOff(QThread):
+    update = pyqtSignal(object)
+    
     def __init__(self, window, Timers):
-        threading.Thread.__init__(self)
+        super().__init__(window)
         self.window = window
         self.Timers = Timers
         self.ifRun = False
         self.timer = None
+        
 
     def run(self):
         self.ifRun = True
         while self.ifRun:
-            time = self.timer['timer'].remainingTime()
-            self.window.TimerText.setText(f'<h1 style="text-align:center">Time remaining: {time}</h1>')
+            self.update.emit(self.timer)
+            sleep(1)
     
     def stop(self):
         self.ifRun = False
     
     def findNextTimerToGoOff(self):
-        minTime = 9000000000000000000000000
+        changed = False
+        minTime = 900000000000000
         nextTimerId = -1
         for timer in self.Timers.values():
-            if timer['timer'].remainingTime() < minTime:
+            if timer['timer'].isActive() and timer['timer'].remainingTime() < minTime:
                 nextTimerId = timer['id']
+                changed = True
+        if not changed:
+            self.stop()
+            return
         self.timer = self.Timers[nextTimerId]
     
-    def timerTimeOut(self):
-        QMessageBox.critical(
-        self.window,
-        "TIMER TIMEOUT",
-        f"<p>{self.timer['title']} has timed out</p>"
-        )
-        self.findNextTimerToGoOff()
+    def isNextTimerToGoOff(self, id):
+        return self.timer['id'] == id
+
     

@@ -32,6 +32,7 @@ class VoiceCommand(States.BaseState.BaseState):
             "Error",
             f"<p>{dialog.getError()}</p>"
             )
+            self.window.changeState(States.Idle.Idle)
     
     def execCommand(self):
         try:
@@ -54,8 +55,11 @@ class VoiceCommand(States.BaseState.BaseState):
             self.window.changeState(States.Notes.Notes)
         elif self.command == VoiceCommands.Show_Timers:
             self.window.changeState(States.Timers.Timers)
+        elif self.command == VoiceCommands.Show_recipes:
+            self.window.changeState(States.Recipes.Recipes)
         elif self.command == VoiceCommands.Get_a_Recipe:
-            self.notImplemted()
+            self.window.changeState(States.Recipes.Recipes)
+            self.window.state.listenToDish()
         elif self.command == VoiceCommands.Pause_timer:
             self.notImplemted()
         elif self.command == VoiceCommands.Stop_timer:
@@ -78,13 +82,3 @@ class VoiceCommand(States.BaseState.BaseState):
         f"<p>couldn't understand command</p>"
         )
         self.window.changeState(States.Idle.Idle) 
-    # Add_A_Note = "Add a Note"
-    # Remove_a_Note = "Remove a Note"
-    # Show_notes = "Show notes"
-    # Show_note = "Show note"
-    # Show_Timers = "Show Timers"
-    # Get_a_Recipe = "Get a Recipe"
-    # Add_a_timer = "Add a timer"
-    # Pause_timer = "Pause timer"
-    # Stop_timer = "Stop timer"
-    # Select_Timer = "Select timer"

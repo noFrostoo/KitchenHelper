@@ -55,12 +55,13 @@ def create_note(user_id: str, note: schemas.NoteBase, db: Session = Depends(get_
         raise HTTPException(status_code=409, detail='Title already in use')
 
 
-@app.put('/notes/{user_id}/{id}', response_model=bool)
+@app.put('/notes/{user_id}/{id}', response_model=schemas.Note)
 def replace_note(user_id: str, id: int, note: schemas.NoteBase, db: Session = Depends(get_db)):
-    if not crud.replace_note(db, note, id, user_id):
+    db_note = crud.replace_note(db, note, id, user_id)
+    if db_note is None:
         raise HTTPException(status_code=404, detail='Note not found')
 
-    return True
+    return db_note
 
 
 @app.delete('/notes/{user_id}/{id}', response_model=bool)

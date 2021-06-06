@@ -6,8 +6,6 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QEvent
 from kitchenhelper_client.States.Idle import Idle
-from kitchenhelper_client.Config import Config
-from kitchenhelper_client.RequestHandler import RequestHandler
 from kitchenhelper_client.VoiceCommandHandler import VoiceCommandHandler
 from kitchenhelper_client.VoiceCommandInterpreter import VoiceCommandInterpreter
 from kitchenhelper_client.DataStore import DataStore
@@ -25,9 +23,7 @@ class MainWindow(QMainWindow):
         self.showInfoScreen()
 
     def setUpObjects(self):
-        self.config = Config()
-        self.dataStore = DataStore(self)
-        self.requestHandler = RequestHandler(self.config)
+        self.dataStore = DataStore()
         self.voiceCommandHandler = VoiceCommandHandler()
         self.voiceCommandInterpreter = VoiceCommandInterpreter(self.voiceCommandHandler)
         self.timers = Timers(self)

@@ -2,6 +2,7 @@ from kitchenhelper_client.States.BaseState import BaseState
 from kitchenhelper_client.States.Notes import Notes
 from kitchenhelper_client.States.Timers import Timers
 from kitchenhelper_client.States.VoiceCommand import VoiceCommand
+from kitchenhelper_client.States.Recipes import Recipes
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
   QMessageBox
@@ -25,7 +26,7 @@ class Idle(BaseState):
         elif e.key() == Qt.Key_5:
             self.window.changeState(VoiceCommand)
         elif e.key() == Qt.Key_6:
-            self.window.test() 
+            self.window.changeState(Recipes)
         elif e.key() == Qt.Key_8:
             self.window.changeState(Timers)
         elif e.key() == Qt.Key_Escape:
