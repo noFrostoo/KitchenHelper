@@ -1,5 +1,8 @@
+from hashlib import sha1
 import json
 from pathlib import Path
+from urllib.request import urlretrieve
+
 from PyQt5.QtWidgets import QMessageBox
 
 from .pythonUi.ServerDialog import ServerDialog
@@ -8,6 +11,7 @@ from .schemas import Note, NoteBase, Recipe
 
 class DataStore:
     DATASTORE_FILE = Path('data.json')
+    IMAGE_DIR = Path('.kh_images')
 
     def __init__(self):
         self.data = {}
@@ -16,8 +20,8 @@ class DataStore:
             with self.DATASTORE_FILE.open() as fp:
                 self.data = json.load(fp)
 
-            self.data['notes'] = {int(k): Note.parse_obj(v) for k, v in self.data['notes']}
-            self.data['recipes'] = {k: Recipe.parse_obj(v) for k, v in self.data['recipes']}
+            self.data['notes'] = {int(k): Note.parse_obj(v) for k, v in self.data['notes'].items()}
+            self.data['recipes'] = {k: Recipe.parse_obj(v) for k, v in self.data['recipes'].items()}
             
             self.req_handler = RequestHandler(self.data['server_address'], self.data['user_id'])
 
@@ -25,22 +29,20 @@ class DataStore:
         
         else:
             self.data['server_address'] = self._get_server_address()
-            self.req_handler = RequestHandler(self.data['server_address'], None)
-            self.data['user_id'] = self.req_handler.registerUser()
             self.data['notes'] = {}
             self.data['recipes'] = {}
+            self.req_handler = RequestHandler(self.data['server_address'], None)
+            self.data['user_id'] = self.req_handler.registerUser()
 
-        self._save()
+        self.save()
 
-    def __del__(self):
-        self._save()
-
-    def _save(self):
-        self.data['notes'] = {k: v.dict() for k, v in self.data['notes']}
-        self.data['recipes'] = {k: v.dict() for k, v in self.data['recipes']}
+    def save(self):
+        to_save = self.data.copy()
+        to_save['notes'] = {k: v.dict() for k, v in self.data['notes'].items()}
+        to_save['recipes'] = {k: v.dict() for k, v in self.data['recipes'].items()}
 
         with self.DATASTORE_FILE.open('w') as fp:
-            json.dump(self.data, fp)
+            json.dump(to_save, fp)
 
 
     @staticmethod
@@ -76,7 +78,7 @@ class DataStore:
         self.data['notes'][id] = self.req_handler.replaceNote(id, self.data['notes'][id])
 
     def getAllRecipes(self):
-        return reversed(self.data['recipes'].values())
+        return list(reversed(self.data['recipes'].values()))
 
     def getRecipe(self, dish: str):
         dish = dish.strip()
@@ -90,3 +92,14 @@ class DataStore:
             self.data['recipes'][dish] = recipe
 
         return recipe
+
+    def getImage(self, url: str):
+        try:
+            self.IMAGE_DIR.mkdir(exist_ok=True)
+            filepath = (self.IMAGE_DIR / sha1(url.encode()).hexdigest()[:8]).resolve()
+            if not filepath.exists():
+                urlretrieve(url, filepath)
+            return filepath
+        except Exception as e:
+            print(e)
+            return None
