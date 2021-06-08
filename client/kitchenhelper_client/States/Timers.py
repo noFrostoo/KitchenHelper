@@ -37,6 +37,7 @@ class Timers(States.BaseState.BaseState):
     def leave(self):
         self.updeter.stopUpdating()
         self.window.List.clear()
+        self.window.mainArea.setCurrentIndex(1)
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_0:

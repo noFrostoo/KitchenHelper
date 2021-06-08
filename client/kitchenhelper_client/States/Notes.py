@@ -15,7 +15,7 @@ class Notes(States.BaseState.BaseState):
         self.id = 0
         self.idSize = 0
         self.selectedNote = None
-        # self.addNoteDialog = AddNoteDialog(window)
+        self.seletedId = -1
 
     def enter(self):
         self.window.mainArea.setCurrentIndex(1)
@@ -88,25 +88,30 @@ class Notes(States.BaseState.BaseState):
         self.window.statusbar.showMessage(f'Note id: {self.id}')
 
 
-    def selectNote(self, id):
-        self.selectedNote = self.window.dataStore.getNote(id)
-        self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
-        self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
+    def selectNote(self, index):
+        print(self.selectedNote)
+        dictList = list(self.window.dataStore.getAllNotes())
+        self.selectedNote = dictList[index]
+        # self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
+        # self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
+        self.seletedId = self.selectedNote.id
         self.id = 0
         self.idSize = 0
+        self.showSelectedNote()
     
     def showSelectedNote(self):
         self.window.TextArea.setText(f'<h1>{self.selectedNote.title}</h1>'
                                 f'{self.selectedNote.content}')
         self.window.statusbar.showMessage(f'Selected note: {self.selectedNote.title}')
 
-    def removeNote(self, id):
-        self.window.dataStore.removeNote(id)
+    def removeNote(self):
+        self.window.dataStore.removeNote(self.seletedId)
         QMessageBox.info(
             self.window,
             "INFO",
             f"<p>Note removed</p>"
-            )
+        )
+        self.showInfo()
 
     def addNote(self):
         addNoteDialog = AddNoteDialog(self.window)
@@ -114,7 +119,13 @@ class Notes(States.BaseState.BaseState):
             newNoteTitle = addNoteDialog.getTitle()
             print(f"text from speech recognition: {newNoteTitle}")
             newNoteContents = addNoteDialog.getNote()
-            self.window.dataStore.addNote(newNoteTitle, newNoteContents)
+            self.seletedId =  self.window.dataStore.addNote(newNoteTitle, newNoteContents)
+            for i, note in enumerate(self.window.dataStore.getAllNotes()):
+                if note.id == self.seletedId:
+                    self.seletedId = i
+                    break
+            self.selectNote(self.seletedId)
+            self.updateNotesList()
         else:
             QMessageBox.critical(
             self.window,

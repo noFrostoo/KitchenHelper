@@ -68,6 +68,7 @@ class DataStore:
     def addNote(self, title: str, text: str):
         note = self.req_handler.uploadNote(NoteBase(title=title, content=text))
         self.data['notes'][note.id] = note
+        return note.id
 
     def removeNote(self, id: int):
         self.req_handler.deleteNote(id)
