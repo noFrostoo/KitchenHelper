@@ -113,7 +113,14 @@ class Timers(States.BaseState.BaseState):
         self.updeter.startUpdatingTimer()
     
     def selectTimer(self, id):
-        self.updeter.changeTimer(self.window.timers.getTimer(id))
+        try:
+            self.updeter.changeTimer(self.window.timers.getTimer(id))
+        except KeyError as e:
+            QMessageBox.critical(
+            self.window,
+            "Error",
+            f"<p>No timer of id {e}</p>"
+            )    
         self.selectedId = id
         self.id = 0
         self.idSize = 0
