@@ -61,3 +61,6 @@ class MainWindow(QMainWindow):
             "About Kitchen Helper",
             "<p>Kitchen helper client app</p>"
         )
+
+    def closeEvent(self, e):
+        self.dataStore.save()
