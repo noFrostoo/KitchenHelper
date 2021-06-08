@@ -9,10 +9,11 @@ from PyQt5.QtWidgets import (
 )
 
 class ListenDialog(QDialog, Ui_Dialog):
-    def __init__(self, window):
+    def __init__(self, window, labelText = 'Listening to voice command ...'):
         super().__init__(window)
         self.window = window
         self.setupUi(self)
+        self.label.setText(labelText)
         self.connectSignalsSlots()
         self.error = 'nothing'
         self.text = 0

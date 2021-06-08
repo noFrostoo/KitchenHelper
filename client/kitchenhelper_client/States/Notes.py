@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import (
   QMessageBox
 )
 from kitchenhelper_client.pythonUi.AddNoteDialog import AddNoteDialog
+from kitchenhelper_client.pythonUi.ListenDialog import ListenDialog 
+from word2number import w2n
 
 class Notes(States.BaseState.BaseState):
     def __init__(self, window):
@@ -50,6 +52,10 @@ class Notes(States.BaseState.BaseState):
         elif e.key() == Qt.Key_Enter:
             self.selectNote(self.id)
             self.showSelectedNote()
+        elif e.key() == Qt.Key_Plus:
+            self.addNote()
+        elif e.key() == Qt.Key_Minus:
+            self.removeNote(self.id)
         elif e.key() == Qt.Key_Escape:
             self.window.changeState(States.Idle.Idle)
             self.window.List.clear()
@@ -91,8 +97,13 @@ class Notes(States.BaseState.BaseState):
                                 f'{self.selectedNote.content}')
         self.window.statusbar.showMessage(f'Selected note: {self.selectedNote.title}')
 
-    def removeNote(self):
-        pass
+    def removeNote(self, id):
+        self.window.dataStore.removeNote(id)
+        QMessageBox.info(
+            self.window,
+            "INFO",
+            f"<p>Note removed</p>"
+            )
 
     def addNote(self):
         addNoteDialog = AddNoteDialog(self.window)
@@ -111,3 +122,16 @@ class Notes(States.BaseState.BaseState):
     def updateNotesList(self):
         self.window.List.clear()
         self.showNotesInfo()
+    
+    def selectNoteVoice(self):
+        dialog = ListenDialog(self.window, 'Listing to note id...')
+        if dialog.exec():
+            NoteID = self.minutes = w2n.word_to_num(dialog.getText())
+            print(f"text from speech recognition: {NoteID}")
+            self.selectNote(NoteID)
+        else:
+            QMessageBox.critical(
+            self.window,
+            "Error",
+            f"<p>{dialog.getError()}, timer not selected</p>"
+            )

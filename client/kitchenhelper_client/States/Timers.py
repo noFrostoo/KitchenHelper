@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import (
 )
 from kitchenhelper_client.pythonUi.AddTimerDialog import AddTimerDialog
 from time import sleep
+from kitchenhelper_client.pythonUi.ListenDialog import ListenDialog 
+from word2number import w2n
 
 class Timers(States.BaseState.BaseState):
     def __init__(self, window):
@@ -114,6 +116,19 @@ class Timers(States.BaseState.BaseState):
         self.id = 0
         self.idSize = 0
         self.window.statusbar.showMessage(f"timer selected {id}")
+
+    def selectTimerVoice(self):
+        dialog = ListenDialog(self.window, 'Listing to timer id...')
+        if dialog.exec():
+            timerID = self.minutes = w2n.word_to_num(dialog.getText())
+            print(f"text from speech recognition: {timerID}")
+            self.selectTimer(timerID)
+        else:
+            QMessageBox.critical(
+            self.window,
+            "Error",
+            f"<p>{dialog.getError()}, timer not selected</p>"
+            )
 
     def pauseTimer(self):
         self.window.timers.pauseTimer(self.selectedId)

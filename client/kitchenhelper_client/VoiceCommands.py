@@ -21,11 +21,12 @@ class VoiceCommands(enum.Enum):
     Show_Timers = "Show Timers"
     Show_recipes = "Show recipes"
     Get_a_Recipe = "Get a Recipe"
+    Nothing = "nothing"
     Add_a_timer = "Add a timer"
     Pause_timer = "Pause timer"
     Stop_timer = "Stop timer"
     Select_Timer = "Select timer"
-    Nothing = "nothing"
+    Start_Timer = "Start a timer"
 
     @classmethod
     def list(cls):

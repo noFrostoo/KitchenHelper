@@ -18,6 +18,13 @@ class Timers(QObject):
         self.UpdateNextTimerToGoOffLookupThread = None
         self.window.TimerText.setText(f'<h2 style="text-align:center">No Timer Active</h2>')
         self.nextTimerToGoOff.update.connect(self.updateNextTimertoGoOff)
+        self.timers[1] = {
+            'id': 1,
+            'title': 'lool',
+            'timer': QTimer(),
+            'time': 3000,
+            'remainingTime': 3000
+        }
 
     def addTimer(self, time, title):
         id = self.nextId
