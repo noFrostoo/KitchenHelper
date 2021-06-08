@@ -20,7 +20,7 @@ class Idle(BaseState):
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_2:
-            self.window.test()
+            self.window.dataStore.changeServer()
         elif e.key() == Qt.Key_4:
             self.stateToNotes()
         elif e.key() == Qt.Key_5:

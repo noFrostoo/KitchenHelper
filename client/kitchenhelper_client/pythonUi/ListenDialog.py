@@ -19,19 +19,12 @@ class ListenDialog(QDialog, Ui_Dialog):
         self.vi = VoiceInterpreter()
         QTimer.singleShot(400, self.listen) # value found with try and  error so has to repeated for rasbery pi
         
-
-    # def showEvent(self, e):
-    #     print('show')
-    #     super().showEvent(e)
-    #     self.listen()
     
     def connectSignalsSlots(self):
         pass
-    
-    # @pyqtSlot()
+
     def listen(self):
         try:
-            self.window.statusbar.showMessage(f'Listening...')
             self.doTheListen()
             self.accept()
         except sr.UnknownValueError:

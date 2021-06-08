@@ -90,3 +90,8 @@ class DataStore:
             self.data['recipes'][dish] = recipe
 
         return recipe
+
+    def changeServer(self):
+        self.data['server_address'] = self._get_server_address()
+
+        self._save()
