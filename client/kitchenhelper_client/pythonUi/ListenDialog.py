@@ -9,29 +9,23 @@ from PyQt5.QtWidgets import (
 )
 
 class ListenDialog(QDialog, Ui_Dialog):
-    def __init__(self, window):
+    def __init__(self, window, labelText = 'Listening to voice command ...'):
         super().__init__(window)
         self.window = window
         self.setupUi(self)
+        self.label.setText(labelText)
         self.connectSignalsSlots()
         self.error = 'nothing'
         self.text = 0
         self.vi = VoiceInterpreter()
         QTimer.singleShot(400, self.listen) # value found with try and  error so has to repeated for rasbery pi
         
-
-    # def showEvent(self, e):
-    #     print('show')
-    #     super().showEvent(e)
-    #     self.listen()
     
     def connectSignalsSlots(self):
         pass
-    
-    # @pyqtSlot()
+
     def listen(self):
         try:
-            self.window.statusbar.showMessage(f'Listening...')
             self.doTheListen()
             self.accept()
         except sr.UnknownValueError:

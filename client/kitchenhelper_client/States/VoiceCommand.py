@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import (
 class VoiceCommand(States.BaseState.BaseState):
     def __init__(self, window):
         self.window = window
-        # self.dialog = ListenDialog(self)
 
     def enter(self):
         self.window.statusbar.showMessage('Listening for commands')
@@ -61,11 +60,18 @@ class VoiceCommand(States.BaseState.BaseState):
             self.window.changeState(States.Recipes.Recipes)
             self.window.state.listenToDish()
         elif self.command == VoiceCommands.Pause_timer:
-            self.notImplemted()
+            self.window.changeState(States.Timers.Timers)
+            self.window.state.pauseTimer()
         elif self.command == VoiceCommands.Stop_timer:
-            self.notImplemted()
+            self.window.changeState(States.Timers.Timers)
+            self.window.state.stopTimer()
+        elif self.command == VoiceCommands.Start_Timer:
+            self.window.changeState(States.Timers.Timers)
+            self.window.state.startTimer()
         elif self.command == VoiceCommands.Select_Timer:
-            self.notImplemted()
+            self.window.changeState(States.Timers.Timers)
+            self.window.state.selectTimerVoice()
+            self.window.state.showSelectedTimer()
         
     def notImplemted(self):
         QMessageBox.critical(

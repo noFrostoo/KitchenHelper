@@ -5,12 +5,15 @@ from PyQt5.QtWidgets import (
 )
 from kitchenhelper_client.pythonUi.AddTimerDialog import AddTimerDialog
 from time import sleep
+from kitchenhelper_client.pythonUi.ListenDialog import ListenDialog 
+from word2number import w2n
 
 class Timers(States.BaseState.BaseState):
     def __init__(self, window):
         self.window = window
         self.updeter = Updater(window, None)
         self.selectedId = -1
+        self.id = -1
         self.updateTimersList = False
         self.updeter.updateSelectedTimerSignal.connect(self.updateMainArea)
         self.updeter.updateTimerListSignal.connect(self.updateTimerList)
@@ -34,6 +37,7 @@ class Timers(States.BaseState.BaseState):
     def leave(self):
         self.updeter.stopUpdating()
         self.window.List.clear()
+        self.window.mainArea.setCurrentIndex(1)
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_0:
@@ -60,19 +64,22 @@ class Timers(States.BaseState.BaseState):
             self.addTimer()
         elif e.key() == Qt.Key_Minus:
             self.removeTimer()
-        elif e.key() == Qt.Key_Period:
-            self.window.changeState(States.VoiceCommand.VoiceCommand)
+        elif e.key() == Qt.Key_Comma:
             self.window.List.clear()
+            self.window.changeState(States.VoiceCommand.VoiceCommand)
         elif e.key() == Qt.Key_Slash:
             self.startTimer()
         elif e.key() == Qt.Key_Asterisk:
-            print('fu2')
+            if self.updeter.isRunning():
+                self.pauseTimer()
+            else:
+                self.stopTimer()
         elif e.key() == Qt.Key_Enter:
             self.selectTimer(self.id)
             self.showSelectedTimer()
         elif e.key() == Qt.Key_Escape:
-            self.window.changeState(States.Idle.Idle)
             self.window.List.clear()
+            self.window.changeState(States.Idle.Idle)
         else:
             QMessageBox.critical(
             self.window,
@@ -88,7 +95,7 @@ class Timers(States.BaseState.BaseState):
                                 '<p> You can remove Stopwatche by pressing - and then entering Stopwatche number </p>'
                                 '<p> You can look at pause/start by entering id and then pressing enter </p>'
                                 '<p> You can go back by pressing escape key</p>'
-                                '<p> Available voice commands: </p>')
+                                '<p> You can activate voice command by clicking comma(,)')
     
     def showTimers(self):
         if self.window.timers.count() == 0:
@@ -109,6 +116,20 @@ class Timers(States.BaseState.BaseState):
         self.selectedId = id
         self.id = 0
         self.idSize = 0
+        self.window.statusbar.showMessage(f"timer selected {id}")
+
+    def selectTimerVoice(self):
+        dialog = ListenDialog(self.window, 'Listing to timer id...')
+        if dialog.exec():
+            timerID = self.minutes = w2n.word_to_num(dialog.getText())
+            print(f"text from speech recognition: {timerID}")
+            self.selectTimer(timerID)
+        else:
+            QMessageBox.critical(
+            self.window,
+            "Error",
+            f"<p>{dialog.getError()}, timer not selected</p>"
+            )
 
     def pauseTimer(self):
         self.window.timers.pauseTimer(self.selectedId)
@@ -138,7 +159,6 @@ class Timers(States.BaseState.BaseState):
             self.selectedId = self.window.timers.addTimer(time, timerTitle)
             self.updeter.changeTimer(self.window.timers.getTimer(self.selectedId))
             self.showSelectedTimerOrInfo()
-            print(f"showing ")
             self.showTimers()
         else:
             QMessageBox.critical(
@@ -164,7 +184,7 @@ class Timers(States.BaseState.BaseState):
         timers = self.window.timers.getTimers()
         for timer in timers.values():
             remainingTimeText = formatTime(timer['timer'].remainingTime())
-            self.window.List.addItem(f'Id: {timer["id"]}, {remainingTimeText}')
+            self.window.List.addItem(f'Id: {timer["id"]}, Title:{timer["title"]}, {remainingTimeText}')
 
     def timerTimeout(self, timer):
         self.selectedId
@@ -185,6 +205,7 @@ class Updater(QThread):
         print(f"new timer change {newTimer}")
         self.timer = newTimer
         self.fullTime = newTimer['time']
+        self.window.timerTitleLabel.setText(newTimer['title'])
     
     def startUpdatingTimer(self):
         self.updateSelectedTimer = True
@@ -213,15 +234,12 @@ class Updater(QThread):
     def hasTimer(self):
         return self.timer is not None
     
-    # def isRunning(self):
-    #     pass
-
 def formatTime(ms):
     s=ms/1000
     m,s=divmod(s,60)
     h,m=divmod(m,60)
     d,h=divmod(h,24)
-    return f"{d:0}:{h:02}:{m:02}:{s:02}"
+    return f"{h:02}:{m:02}:{s:02}"
 
 
 class NoTimerSelected(Exception):

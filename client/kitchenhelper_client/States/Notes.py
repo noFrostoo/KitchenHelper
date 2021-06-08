@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import (
   QMessageBox
 )
 from kitchenhelper_client.pythonUi.AddNoteDialog import AddNoteDialog
+from kitchenhelper_client.pythonUi.ListenDialog import ListenDialog 
+from word2number import w2n
 
 class Notes(States.BaseState.BaseState):
     def __init__(self, window):
@@ -13,7 +15,7 @@ class Notes(States.BaseState.BaseState):
         self.id = 0
         self.idSize = 0
         self.selectedNote = None
-        # self.addNoteDialog = AddNoteDialog(window)
+        self.seletedId = -1
 
     def enter(self):
         self.window.mainArea.setCurrentIndex(1)
@@ -50,9 +52,16 @@ class Notes(States.BaseState.BaseState):
         elif e.key() == Qt.Key_Enter:
             self.selectNote(self.id)
             self.showSelectedNote()
+        elif e.key() == Qt.Key_Plus:
+            self.addNote()
+        elif e.key() == Qt.Key_Minus:
+            self.removeNote(self.id)
         elif e.key() == Qt.Key_Escape:
             self.window.changeState(States.Idle.Idle)
             self.window.List.clear()
+        elif e.key() == Qt.Key_Comma:
+            self.window.List.clear()
+            self.window.changeState(States.VoiceCommand.VoiceCommand)
         else:
             QMessageBox.critical(
             self.window,
@@ -67,7 +76,7 @@ class Notes(States.BaseState.BaseState):
                                 '<p> You can remove note by pressing - and then entering note number </p>'
                                 '<p> You can look at note by entering id and then pressing enter </p>'
                                 '<p> You can go back by pressing escape key</p>'
-                                '<p> Available voice commands: </p>')
+                                '<p>You can activate voice command by clicking comma(,)</p>')
     
     def showNotesInfo(self):
         for i, note in enumerate(self.window.dataStore.getAllNotes()):
@@ -79,12 +88,16 @@ class Notes(States.BaseState.BaseState):
         self.window.statusbar.showMessage(f'Note id: {self.id}')
 
 
-    def selectNote(self, id):
-        self.selectedNote = self.window.dataStore.getNote(id)
-        self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
-        self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
+    def selectNote(self, index):
+        print(self.selectedNote)
+        dictList = list(self.window.dataStore.getAllNotes())
+        self.selectedNote = dictList[index]
+        # self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
+        # self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
+        self.seletedId = self.selectedNote.id
         self.id = 0
         self.idSize = 0
+        self.showSelectedNote()
     
     def showSelectedNote(self):
         self.window.TextArea.setText(f'<h1>{self.selectedNote.title}</h1>'
@@ -92,7 +105,13 @@ class Notes(States.BaseState.BaseState):
         self.window.statusbar.showMessage(f'Selected note: {self.selectedNote.title}')
 
     def removeNote(self):
-        pass
+        self.window.dataStore.removeNote(self.seletedId)
+        QMessageBox.info(
+            self.window,
+            "INFO",
+            f"<p>Note removed</p>"
+        )
+        self.showInfo()
 
     def addNote(self):
         addNoteDialog = AddNoteDialog(self.window)
@@ -100,7 +119,13 @@ class Notes(States.BaseState.BaseState):
             newNoteTitle = addNoteDialog.getTitle()
             print(f"text from speech recognition: {newNoteTitle}")
             newNoteContents = addNoteDialog.getNote()
-            self.window.dataStore.addNote(newNoteTitle, newNoteContents)
+            self.seletedId =  self.window.dataStore.addNote(newNoteTitle, newNoteContents)
+            for i, note in enumerate(self.window.dataStore.getAllNotes()):
+                if note.id == self.seletedId:
+                    self.seletedId = i
+                    break
+            self.selectNote(self.seletedId)
+            self.updateNotesList()
         else:
             QMessageBox.critical(
             self.window,
@@ -111,3 +136,16 @@ class Notes(States.BaseState.BaseState):
     def updateNotesList(self):
         self.window.List.clear()
         self.showNotesInfo()
+    
+    def selectNoteVoice(self):
+        dialog = ListenDialog(self.window, 'Listing to note id...')
+        if dialog.exec():
+            NoteID = self.minutes = w2n.word_to_num(dialog.getText())
+            print(f"text from speech recognition: {NoteID}")
+            self.selectNote(NoteID)
+        else:
+            QMessageBox.critical(
+            self.window,
+            "Error",
+            f"<p>{dialog.getError()}, timer not selected</p>"
+            )

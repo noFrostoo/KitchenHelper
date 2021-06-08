@@ -41,7 +41,20 @@ class MainWindow(QMainWindow):
                                '<p> You can look around the program by using keyboar or voice commands </p>'
                                '<p> KeyBoard actions depend on contex</p>'
                                '<p> Keyboard usage in idle state; 2 - change server, 4 - look up notes, 5 - voice command, 6 - find a recpie, 8 - see timers</p>'
-                               '<p> Available voice commands: </p>')
+                               '<p> Available voice commands: </p>'
+                                    '<p style="text-indent:40px;">* Add a Note</p>'
+                                    '<p style="text-indent:40px;">* Remove a Note</p>'
+                                    '<p style="text-indent:40px;">* Show notes</p>'
+                                    '<p style="text-indent:40px;">* Show note'
+                                    '<p style="text-indent:40px;">* Show Timers</p>'
+                                    '<p style="text-indent:40px;">* Show recipes</p>'
+                                    '<p style="text-indent:40px;">* Get a Recipe</p>'
+                                    '<p style="text-indent:40px;">* nothing</p>'
+                                    '<p style="text-indent:40px;">* Add a timer</p>'
+                                    '<p style="text-indent:40px;">* Pause timer</p>'
+                                    '<p style="text-indent:40px;">* Stop timer</p>'
+                                    '<p style="text-indent:40px;">* Select timer</p>'
+                                    '<p style="text-indent:40px;">* Start a timer</p>')
 
     def changeState(self, newState):
         self.state.leave()
