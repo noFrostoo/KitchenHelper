@@ -79,7 +79,7 @@ class DataStore:
         self.data['notes'][id] = self.req_handler.replaceNote(id, self.data['notes'][id])
 
     def getAllRecipes(self):
-        return list(reversed(self.data['recipes'].values()))
+        return list(reversed(list(self.data['recipes'].values())))
 
     def getRecipe(self, dish: str):
         dish = dish.strip()
