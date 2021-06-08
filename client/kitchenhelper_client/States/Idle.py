@@ -11,8 +11,6 @@ from PyQt5.QtWidgets import (
 class Idle(BaseState):
     def __init__(self, window):
         super().__init__(window)
-        # self.window.showInfoScreen()
-        # self.window.statusbar.showMessage('Waiting for actions')
 
     def enter(self):
         self.window.showInfoScreen()

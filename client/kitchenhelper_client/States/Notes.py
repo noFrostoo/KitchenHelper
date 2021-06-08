@@ -59,6 +59,9 @@ class Notes(States.BaseState.BaseState):
         elif e.key() == Qt.Key_Escape:
             self.window.changeState(States.Idle.Idle)
             self.window.List.clear()
+        elif e.key() == Qt.Key_Comma:
+            self.window.List.clear()
+            self.window.changeState(States.VoiceCommand.VoiceCommand)
         else:
             QMessageBox.critical(
             self.window,
@@ -73,7 +76,7 @@ class Notes(States.BaseState.BaseState):
                                 '<p> You can remove note by pressing - and then entering note number </p>'
                                 '<p> You can look at note by entering id and then pressing enter </p>'
                                 '<p> You can go back by pressing escape key</p>'
-                                '<p> Available voice commands: </p>')
+                                '<p>You can activate voice command by clicking comma(,)</p>')
     
     def showNotesInfo(self):
         for i, note in enumerate(self.window.dataStore.getAllNotes()):

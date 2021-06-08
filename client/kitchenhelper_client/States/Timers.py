@@ -63,9 +63,9 @@ class Timers(States.BaseState.BaseState):
             self.addTimer()
         elif e.key() == Qt.Key_Minus:
             self.removeTimer()
-        elif e.key() == Qt.Key_Period:
-            self.window.changeState(States.VoiceCommand.VoiceCommand)
+        elif e.key() == Qt.Key_Comma:
             self.window.List.clear()
+            self.window.changeState(States.VoiceCommand.VoiceCommand)
         elif e.key() == Qt.Key_Slash:
             self.startTimer()
         elif e.key() == Qt.Key_Asterisk:
@@ -77,8 +77,8 @@ class Timers(States.BaseState.BaseState):
             self.selectTimer(self.id)
             self.showSelectedTimer()
         elif e.key() == Qt.Key_Escape:
-            self.window.changeState(States.Idle.Idle)
             self.window.List.clear()
+            self.window.changeState(States.Idle.Idle)
         else:
             QMessageBox.critical(
             self.window,
@@ -94,7 +94,7 @@ class Timers(States.BaseState.BaseState):
                                 '<p> You can remove Stopwatche by pressing - and then entering Stopwatche number </p>'
                                 '<p> You can look at pause/start by entering id and then pressing enter </p>'
                                 '<p> You can go back by pressing escape key</p>'
-                                '<p> Available voice commands: </p>')
+                                '<p> You can activate voice command by clicking comma(,)')
     
     def showTimers(self):
         if self.window.timers.count() == 0:

@@ -62,7 +62,7 @@ class Timers(QObject):
             self.nextTimerToGoOff.findNextTimerToGoOff()
 
     def startTimer(self, id):
-        self.timers[id]['timer'].start(self.timers[id]['time'])
+        self.timers[id]['timer'].start(self.timers[id]['remainingTime'])
         self.nextTimerToGoOff.findNextTimerToGoOff()
         if not self.nextTimerToGoOff.isRunning():
             self.nextTimerToGoOff.start()

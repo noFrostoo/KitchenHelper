@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import (
 class VoiceCommand(States.BaseState.BaseState):
     def __init__(self, window):
         self.window = window
-        # self.dialog = ListenDialog(self)
 
     def enter(self):
         self.window.statusbar.showMessage('Listening for commands')
@@ -66,7 +65,7 @@ class VoiceCommand(States.BaseState.BaseState):
         elif self.command == VoiceCommands.Stop_timer:
             self.window.changeState(States.Timers.Timers)
             self.window.state.stopTimer()
-        elif self.command == VoiceCommands.Start_timer:
+        elif self.command == VoiceCommands.Start_Timer:
             self.window.changeState(States.Timers.Timers)
             self.window.state.startTimer()
         elif self.command == VoiceCommands.Select_Timer:

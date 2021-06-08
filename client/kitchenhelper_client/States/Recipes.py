@@ -44,6 +44,10 @@ class Recipes(States.BaseState.BaseState):
             self.window.List.clear()
             self.window.changeState(States.Idle.Idle)
             return
+        elif e.key() == Qt.Key_Comma:
+            self.window.List.clear()
+            self.window.changeState(States.VoiceCommand.VoiceCommand)
+            return
 
         self.selectRecipe()
     
@@ -97,6 +101,7 @@ class Recipes(States.BaseState.BaseState):
             '<p>You can search for a new recipe by using the "Get a recipe" voice command and then saying a name of a dish.</p>'
             '<p>You can also use the <i>R</i> key to trigger recipe search while on this page.</p>'
             '<p>Press <i>Esc</i> to exit to the main menu.</p>'
+            '<p>You can activate voice command by clicking comma(,)</p>'
         )
 
     def listenToDish(self):
