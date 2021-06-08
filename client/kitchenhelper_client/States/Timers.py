@@ -13,7 +13,8 @@ class Timers(States.BaseState.BaseState):
         self.window = window
         self.updeter = Updater(window, None)
         self.selectedId = -1
-        self.id = -1
+        self.id = 0
+        self.idSize = 0
         self.updateTimersList = False
         self.updeter.updateSelectedTimerSignal.connect(self.updateMainArea)
         self.updeter.updateTimerListSignal.connect(self.updateTimerList)
