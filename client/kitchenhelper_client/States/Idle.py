@@ -17,6 +17,7 @@ class Idle(BaseState):
         self.window.statusbar.showMessage('Waiting for actions')
 
     def keyPressEvent(self, e):
+        # deciding action based on key pressed
         if e.key() == Qt.Key_2:
             self.window.dataStore.changeServer()
         elif e.key() == Qt.Key_4:

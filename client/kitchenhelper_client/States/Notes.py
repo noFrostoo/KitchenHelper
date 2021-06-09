@@ -18,6 +18,10 @@ class Notes(States.BaseState.BaseState):
         self.seletedId = -1
 
     def enter(self):
+        # when entering a state we make sure the index is set to one
+        # text area is under index 0
+        # we always update notes list and if there is selected note we show if
+        # othewise we simply show info
         self.window.mainArea.setCurrentIndex(1)
         self.updateNotesList()
         if self.selectedNote is not None:
@@ -115,9 +119,9 @@ class Notes(States.BaseState.BaseState):
 
     def addNote(self):
         addNoteDialog = AddNoteDialog(self.window)
+        # if dialog was succesful we progres otherewise we show error message box
         if addNoteDialog.exec():
             newNoteTitle = addNoteDialog.getTitle()
-            print(f"text from speech recognition: {newNoteTitle}")
             newNoteContents = addNoteDialog.getNote()
             self.seletedId =  self.window.dataStore.addNote(newNoteTitle, newNoteContents)
             for i, note in enumerate(self.window.dataStore.getAllNotes()):
