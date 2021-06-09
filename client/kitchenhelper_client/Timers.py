@@ -90,7 +90,10 @@ class Timers(QObject):
     
     def updateNextTimertoGoOff(self, timer):
         time = timer['timer'].remainingTime()
-        self.window.TimerText.setText(f'<h2 style="text-align:center">Time: {time}</h2>')
+        s=time/1000
+        m,s=divmod(s,60)
+        h,m=divmod(m,60)
+        self.window.TimerText.setText(f'<h2 style="text-align:center">Time: {m:.2f}:{s:.2f}</h2>')
 
 
 class NextTimerToGoOff(QThread):

@@ -31,7 +31,7 @@ class AddTimerDialog(ListenDialog):
     def process(self):
         self.minutes = w2n.word_to_num(self.minutesText)
         self.seconds = w2n.word_to_num(self.secondsText)
-        self.ms = self.minutes*1000 + self.seconds*60000
+        self.ms = self.seconds*1000 + self.minutes*60000
 
     def listen(self):
         try:
