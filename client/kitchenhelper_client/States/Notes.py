@@ -93,7 +93,6 @@ class Notes(States.BaseState.BaseState):
 
 
     def selectNote(self, index):
-        print(self.selectedNote)
         dictList = list(self.window.dataStore.getAllNotes())
         self.selectedNote = dictList[index]
         self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
@@ -145,7 +144,6 @@ class Notes(States.BaseState.BaseState):
         dialog = ListenDialog(self.window, 'Listing to note id...')
         if dialog.exec():
             NoteID = self.minutes = w2n.word_to_num(dialog.getText())
-            print(f"text from speech recognition: {NoteID}")
             self.selectNote(NoteID)
         else:
             QMessageBox.critical(

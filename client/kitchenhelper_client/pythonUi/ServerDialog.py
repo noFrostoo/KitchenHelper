@@ -17,19 +17,3 @@ class ServerDialog(QDialog):
     def dialogAccept(self):
         self.addres = self.text.text()
         self.accept()
-
-      
-    # self.text.installEventFilter(self)
-    # def self.close
-
-    # # def keyPressEvent(self, e):
-    # #     if e.key() == Qt.Key_Enter:
-    # #         self.close()
-    # #     return super().keyPressEvent(e)
-
-    # def eventFilter(self, source, event):
-    #   if event.type() == QEvent.KeyPress and source is self.text:
-    #     if event.key() == Qt.Key_Enter:
-    #       self.close()
-    #   return super().eventFilter(source, event)
-        

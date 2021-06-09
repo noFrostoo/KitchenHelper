@@ -25,15 +25,16 @@ class ListenDialog(QDialog, Ui_Dialog):
         pass
 
     def listen(self):
+        """
+        Does the listening if erros appeaed  rejecets the dialog
+        """
         try:
             self.doTheListen()
             self.accept()
         except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
             self.error = "Google Speech Recognition could not understand audio"
             self.reject()
         except sr.RequestError as e:
-            print("Could not request results from Google Speech Recognition service; {0}".format(e))
             self.error = "Could not request results from Google Speech Recognition service; {0}".format(e)
             self.reject()
     
@@ -44,7 +45,10 @@ class ListenDialog(QDialog, Ui_Dialog):
         return self.error
     
     def doTheListen(self):
+        """
+        Does the actual listening and if needed changes label on dialog
+        """
         audio = self.vi.listen()
         self.label.setText('Analyzing...')
-        QApplication.processEvents()
+        QApplication.processEvents() # it is needed for qt to change label
         self.text = self.vi.recognize(audio)
