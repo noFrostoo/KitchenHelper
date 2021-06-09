@@ -6,6 +6,11 @@ from urllib.parse import urljoin, quote
 from .schemas import Note, NoteBase, Recipe
 
 class RequestHandler:
+    """
+    Class containing methods for communicating with the server. They
+    correspond to the respective server API endpoints.
+    """
+
     def __init__(self, server_address: str, user_id: Optional[str] = None):
         self.base_url = f'http://{server_address}'
         self.user_id = user_id

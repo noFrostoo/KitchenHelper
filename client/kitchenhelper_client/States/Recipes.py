@@ -11,6 +11,10 @@ class Recipes(States.BaseState.BaseState):
         self.currentIndex = None
 
     def enter(self):
+        """
+        Enter the `Recipes` state, and configure the relevant UI elements.
+        """
+
         self.window.mainArea.setCurrentIndex(1)
         self.window.List.clear()
         self.recipes = self.window.dataStore.getAllRecipes()
@@ -24,6 +28,11 @@ class Recipes(States.BaseState.BaseState):
         self.window.List.clear()
 
     def keyPressEvent(self, e):
+        """
+        Execute actions specific to this state in response to user key presses, like
+        switching between recipes or requesting a new recipe.
+        """
+
         num_keys = [Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3, Qt.Key.Key_4,
                     Qt.Key.Key_5, Qt.Key.Key_6, Qt.Key.Key_7, Qt.Key.Key_8, Qt.Key.Key_9]
 
@@ -52,6 +61,11 @@ class Recipes(States.BaseState.BaseState):
         self.selectRecipe()
     
     def selectRecipe(self):
+        """
+        Show the selected recipe info on the main pane, or help text
+        if none selected.
+        """
+
         if self.currentIndex is None:
             self.window.List.setCurrentRow(-1)
             self.showInfo()
@@ -61,6 +75,11 @@ class Recipes(States.BaseState.BaseState):
             self.displayRecipe(self.currentIndex)
 
     def displayRecipe(self, index):
+        """
+        Build HTML markup describing the selected recipe, and display it on the
+        main pane.
+        """
+
         recipe = self.recipes[index]
         text = []
 
@@ -105,6 +124,11 @@ class Recipes(States.BaseState.BaseState):
         )
 
     def listenToDish(self):
+        """
+        Display a dialog listening to the dish user wants, request the recipe for
+        it from server, and refresh window state.
+        """
+
         dialog = ListenDialog(self.window)
 
         if dialog.exec():

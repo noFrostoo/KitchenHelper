@@ -7,6 +7,11 @@ from kitchenhelper_client.App import App
 
 def main():
     def exception_hook(exctype, value, tb):
+        """
+        This hook captures uncaught exceptions and displays a message
+        box containing exception details.
+        """
+
         traceback.print_exception(exctype, value, tb)
         QMessageBox.critical(
             None,

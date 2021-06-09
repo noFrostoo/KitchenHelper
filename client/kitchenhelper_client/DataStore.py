@@ -14,6 +14,11 @@ class DataStore:
     IMAGE_DIR = Path('.kh_images')
 
     def __init__(self):
+        """
+        Initialize the data store, either by loading the existing data and syncing
+        notes with the server, or by creating new, blank data store.
+        """
+
         self.data = {}
 
         if self.DATASTORE_FILE.exists():
@@ -37,6 +42,10 @@ class DataStore:
         self.save()
 
     def save(self):
+        """
+        Save the data store contents to a JSON file.
+        """
+
         to_save = self.data.copy()
         to_save['notes'] = {k: v.dict() for k, v in self.data['notes'].items()}
         to_save['recipes'] = {k: v.dict() for k, v in self.data['recipes'].items()}
@@ -47,6 +56,10 @@ class DataStore:
 
     @staticmethod
     def _get_server_address():
+        """
+        Display a dialog requesting the user to input the server address
+        """
+
         dialog = ServerDialog()
 
         if dialog.exec():
@@ -79,9 +92,17 @@ class DataStore:
         self.data['notes'][id] = self.req_handler.replaceNote(id, self.data['notes'][id])
 
     def getAllRecipes(self):
+        """
+        Return all recipes, last added first.
+        """
+
         return list(reversed(list(self.data['recipes'].values())))
 
     def getRecipe(self, dish: str):
+        """
+        Get a recipe from the local data store, or ask the server for it.
+        """
+
         dish = dish.strip()
         
         if dish in self.data['recipes']:
@@ -97,9 +118,14 @@ class DataStore:
     def changeServer(self):
         self.data['server_address'] = self._get_server_address()
 
-        self._save()
+        self.save()
 
     def getImage(self, url: str):
+        """
+        Return image path from the image cache, or download the image from URL
+        if not found.
+        """
+
         try:
             self.IMAGE_DIR.mkdir(exist_ok=True)
             filepath = (self.IMAGE_DIR / sha1(url.encode()).hexdigest()[:8]).resolve()
