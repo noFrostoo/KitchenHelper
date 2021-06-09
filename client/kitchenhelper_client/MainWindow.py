@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QEvent
 from kitchenhelper_client.States.Idle import Idle
-from kitchenhelper_client.VoiceCommandHandler import VoiceCommandHandler
 from kitchenhelper_client.VoiceCommandInterpreter import VoiceCommandInterpreter
 from kitchenhelper_client.DataStore import DataStore
 from kitchenhelper_client.Timers import Timers
@@ -15,6 +14,7 @@ from kitchenhelper_client.TextSpeaker import TextSpeaker
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        # loading ui from .ui file
         loadUi("kitchenhelper_client/ui/MainWindow.ui", self)
         self.setUpObjects()
         self.connectSignalsSlots()
@@ -23,16 +23,18 @@ class MainWindow(QMainWindow):
         self.showInfoScreen()
 
     def setUpObjects(self):
+        """
+        Main window works as a frame for grabing objets by states/objects
+        """
         self.dataStore = DataStore()
-        self.voiceCommandHandler = VoiceCommandHandler()
-        self.voiceCommandInterpreter = VoiceCommandInterpreter(self.voiceCommandHandler)
+        self.voiceCommandInterpreter = VoiceCommandInterpreter()
         self.timers = Timers(self)
         self.textSpeaker = TextSpeaker(self)
 
-    def setUpPointersToUiElements(self):
-        pass
-
     def connectSignalsSlots(self):
+        """
+        functions to connect signals and slots
+        """
         pass
     
     def showInfoScreen(self):
@@ -62,11 +64,9 @@ class MainWindow(QMainWindow):
         self.state.enter()
 
     def keyPressEvent(self, e):
+        # we forward key event to a state and then to super object
         self.state.keyPressEvent(e)
         super().keyPressEvent(e)
-        
-    def test(self):
-        print("test")
 
     def about(self):
         QMessageBox.about(
@@ -77,3 +77,4 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, e):
         self.dataStore.save()
+        self.textSpeaker.finish()

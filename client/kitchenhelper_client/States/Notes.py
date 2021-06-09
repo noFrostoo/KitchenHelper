@@ -96,8 +96,8 @@ class Notes(States.BaseState.BaseState):
         print(self.selectedNote)
         dictList = list(self.window.dataStore.getAllNotes())
         self.selectedNote = dictList[index]
-        # self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
-        # self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
+        self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
+        self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
         self.seletedId = self.selectedNote.id
         self.id = 0
         self.idSize = 0
