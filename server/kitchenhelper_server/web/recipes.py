@@ -13,6 +13,14 @@ camel_case_regex = re.compile(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)')
 
 
 def find_recipe(keywords: str):
+    """
+    Tries to find a recipe given the keywords (a space-separated string of words).
+    Only URLs supported by the `recipe-scrapers` library are considered.
+
+    :param keywords: Keywords describing the dish to search
+    :return: a :py:class:Recipe object describing a found recipe or `None` if nothing was found
+    """
+
     for url in search(keywords + " recipe"):
         if any(urlparse(url).netloc.endswith(k) for k in SCRAPERS.keys()):
             scraper = scrape_me(url)

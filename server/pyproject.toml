@@ -15,7 +15,7 @@ lxml = "^4.6.3"
 
 [tool.poetry.dev-dependencies]
 uvicorn = "^0.13.4"
-mypy = "^0.812"
+mypy = "^0.901"
 
 [tool.poetry.scripts]
 run = "kitchenhelper_server:main"

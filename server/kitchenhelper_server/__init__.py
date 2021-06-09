@@ -35,6 +35,10 @@ def get_all_notes(user_id: str, db: Session = Depends(get_db)):
 
 @app.post('/notes/{user_id}/sync', response_model=List[schemas.Note])
 def sync_notes(user_id: str, client_notes: List[schemas.NoteBase], db: Session = Depends(get_db)):
+    """
+    Sync received notes and return the reconciled collection of user's notes.
+    """
+
     crud.sync_notes(db, user_id, client_notes)
     return crud.get_notes_by_user(db, user_id)
 
@@ -71,6 +75,12 @@ def delete_note(user_id: str, id: int, db: Session = Depends(get_db)):
 
 @app.get('/recipes/{keywords}', response_model=schemas.Recipe)
 def get_recipe(keywords: str, db: Session = Depends(get_db)):
+    """
+    Search the database for an existing recipe with the given keywords.
+    If not found, search the Internet for the recipe. If still not found,
+    return status code 404.
+    """
+
     keywords = keywords.replace('+', ' ').lower()
     recipe = crud.get_recipe_by_keywords(db, keywords)
 

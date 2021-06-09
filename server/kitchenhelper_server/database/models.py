@@ -6,6 +6,11 @@ from .setup import Base
 
 
 class User(Base):
+    """
+    The user record. It only contains the UUID of the user in text form,
+    and the last used ID of user's notes.
+    """
+
     __tablename__ = 'users'
 
     id = Column(String(length=36), primary_key=True, index=True)
@@ -15,6 +20,11 @@ class User(Base):
 
 
 class Note(Base):
+    """
+    Note record, containing note data (title and content) and metadata facilitating
+    note management, like last modification date etc.
+    """
+
     __tablename__ = 'notes'
 
     owner_id = Column(String(length=36), ForeignKey('users.id'), primary_key=True, index=True)
@@ -27,6 +37,11 @@ class Note(Base):
 
 
 class Recipe(Base):
+    """
+    Recipe record, containing all data gotten from `recipe-scrapers`, and URL for identification
+    of previously stored recipes.
+    """
+
     __tablename__ = 'recipes'
 
     id = Column(Integer, primary_key=True)
@@ -43,6 +58,11 @@ class Recipe(Base):
 
 
 class RecipeKeywords(Base):
+    """
+    Recipe keywords, used to reduce duplication of recipe records, if multiple sets of
+    keywords yield the same search results.
+    """
+
     __tablename__ = 'recipe_keywords'
 
     keywords = Column(String, primary_key=True, index=True)

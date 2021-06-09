@@ -1,3 +1,9 @@
+"""
+The database configuration. Because of the small scale, the server uses
+a SQLite database for simplicity.
+"""
+
+
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
