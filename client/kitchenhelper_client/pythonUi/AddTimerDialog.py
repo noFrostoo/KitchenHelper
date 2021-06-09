@@ -29,9 +29,12 @@ class AddTimerDialog(ListenDialog):
         self.secondsText = self.vi.recognize(audio)
 
     def process(self):
+        """
+        Calculates ms form minutes and seconds
+        """
         self.minutes = w2n.word_to_num(self.minutesText)
         self.seconds = w2n.word_to_num(self.secondsText)
-        self.ms = self.minutes*1000 + self.seconds*60000
+        self.ms = self.seconds*1000 + self.minutes*60000
 
     def listen(self):
         try:
@@ -39,15 +42,12 @@ class AddTimerDialog(ListenDialog):
             self.process()
             self.accept()
         except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
             self.error = "Google Speech Recognition could not understand audio"
             self.reject()
         except sr.RequestError as e:
-            print("Could not request results from Google Speech Recognition service; {0}".format(e))
             self.error = "Could not request results from Google Speech Recognition service; {0}".format(e)
             self.reject()
         except ValueError as e:
-            print("Could not understand the number")
             self.error = "Could not understand the number"
             self.reject()
             return

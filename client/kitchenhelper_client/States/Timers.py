@@ -130,7 +130,6 @@ class Timers(States.BaseState.BaseState):
         dialog = ListenDialog(self.window, 'Listing to timer id...')
         if dialog.exec():
             timerID = self.minutes = w2n.word_to_num(dialog.getText())
-            print(f"text from speech recognition: {timerID}")
             self.selectTimer(timerID)
         else:
             QMessageBox.critical(
@@ -161,9 +160,7 @@ class Timers(States.BaseState.BaseState):
         addTimerDialog = AddTimerDialog(self.window)
         if addTimerDialog.exec():
             timerTitle = addTimerDialog.getTitle()
-            print(f"text from speech recognition: {timerTitle}")
             time = addTimerDialog.getTime()
-            print(f"time from dialog: {time}")
             self.selectedId = self.window.timers.addTimer(time, timerTitle)
             self.updeter.changeTimer(self.window.timers.getTimer(self.selectedId))
             self.showSelectedTimerOrInfo()
@@ -210,7 +207,6 @@ class Updater(QThread):
         self.timer = timer
         
     def changeTimer(self, newTimer):
-        print(f"new timer change {newTimer}")
         self.timer = newTimer
         self.fullTime = newTimer['time']
         self.window.timerTitleLabel.setText(newTimer['title'])
@@ -247,7 +243,9 @@ def formatTime(ms):
     m,s=divmod(s,60)
     h,m=divmod(m,60)
     d,h=divmod(h,24)
-    return f"{h:02}:{m:02}:{s:02}"
+    if h == 0:
+        return f"{m:.2f}:{s:.2f}"
+    return f"{h}:{m:.2f}:{s:.2f}"
 
 
 class NoTimerSelected(Exception):

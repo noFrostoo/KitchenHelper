@@ -18,6 +18,10 @@ class Notes(States.BaseState.BaseState):
         self.seletedId = -1
 
     def enter(self):
+        # when entering a state we make sure the index is set to one
+        # text area is under index 0
+        # we always update notes list and if there is selected note we show if
+        # othewise we simply show info
         self.window.mainArea.setCurrentIndex(1)
         self.updateNotesList()
         if self.selectedNote is not None:
@@ -89,11 +93,10 @@ class Notes(States.BaseState.BaseState):
 
 
     def selectNote(self, index):
-        print(self.selectedNote)
         dictList = list(self.window.dataStore.getAllNotes())
         self.selectedNote = dictList[index]
-        # self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
-        # self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
+        self.window.textSpeaker.say("Note Title is " + self.selectedNote.title)
+        self.window.textSpeaker.say("Note contents are  " + self.selectedNote.content)
         self.seletedId = self.selectedNote.id
         self.id = 0
         self.idSize = 0
@@ -115,9 +118,9 @@ class Notes(States.BaseState.BaseState):
 
     def addNote(self):
         addNoteDialog = AddNoteDialog(self.window)
+        # if dialog was succesful we progres otherewise we show error message box
         if addNoteDialog.exec():
             newNoteTitle = addNoteDialog.getTitle()
-            print(f"text from speech recognition: {newNoteTitle}")
             newNoteContents = addNoteDialog.getNote()
             self.seletedId =  self.window.dataStore.addNote(newNoteTitle, newNoteContents)
             for i, note in enumerate(self.window.dataStore.getAllNotes()):
@@ -141,7 +144,6 @@ class Notes(States.BaseState.BaseState):
         dialog = ListenDialog(self.window, 'Listing to note id...')
         if dialog.exec():
             NoteID = self.minutes = w2n.word_to_num(dialog.getText())
-            print(f"text from speech recognition: {NoteID}")
             self.selectNote(NoteID)
         else:
             QMessageBox.critical(
